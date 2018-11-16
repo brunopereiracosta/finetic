@@ -6,10 +6,15 @@
 	objectVersion = 50;
 	objects = {
 
+/* Begin PBXFileReference section */
+		E8833DB5219F433600425BF6 /* GA101.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = GA101.py; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
 /* Begin PBXGroup section */
 		E8833DAA219F430B00425BF6 = {
 			isa = PBXGroup;
 			children = (
+				E8833DB5219F433600425BF6 /* GA101.py */,
 			);
 			sourceTree = "<group>";
 		};
@@ -22,7 +27,8 @@
 			buildConfigurationList = E8833DB2219F430B00425BF6 /* Build configuration list for PBXLegacyTarget "finetic" */;
 			buildPhases = (
 			);
-			buildToolPath = /Library/Frameworks/Python.framework/Versions/3.7/Resources/Python.app;
+			buildToolPath = /usr/bin/python;
+			buildWorkingDirectory = "";
 			dependencies = (
 			);
 			name = finetic;
