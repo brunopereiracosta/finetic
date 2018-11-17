@@ -6,7 +6,7 @@ import random
 import operator
 import math
 
-
+epsilon = 1e-20
 
 #import pandas as pd
 #data = pd.read_csv('/Users/bpc/Desktop/Project B.C./R/qantas.csv', sep="\t")
@@ -46,37 +46,65 @@ def get_price(input):
 def window(input):
     return random.randint(0, len(input))
 
+#ind SHOULD BE POSTITIVE
+#part is exactly like shift for negative numbers, but we'll keep it separate because when introducing weights it might be useful to give shift and part different weights
 def shift(arr,ind):
-    return arr[-max(0,ind)]
+    return arr[-(ind+1)]
 
+#ind SHOULD BE POSTITIVE
 def part(arr,ind):
-    return arr[max(0,ind)]
+    return arr[ind]
 
 def protectedDiv(left, right):
     try:
         return left / right
     except ZeroDivisionError:
-        return 1
+        return left / epsilon
 
-def idem(x):
-    return x
+#Note: add line 'pset.addPrimitive(SMA, [array,int,int], float)' to try to add SMA as primitive
+
+#window and ind SHOULD BE POSTITIVE
+def SMA(arr,window,ind):
+	if window==0: #protect agains division by 0 (choose arr.s just as a choice...)
+		window=arr.s
+
+	if ind==0:
+		temp = arr[-window:]
+	else:
+		temp = arr[-window-ind:-ind]
+	return sum(temp)/window
 
 class array:
     def __init__(self, v):
         self.v = v
         self.s = len(v)
+        
+    def __len__(self):
+        return self.s
+    def __repr__(self): #this is only so that print(array) works
+        return self.v.__repr__()
+
+    def protect(self,key): #make it so that key cannot excede [-N,N-1]
+        if key>0 and key>=self.s: #protect agains invalid indices
+            return self.s-1
+        elif key<0 and -key>self.s: #protect agains invalid indices
+            return -self.s
+        return key
+
     def __getitem__(self, key):
-    	if key<0:
-    		return self.v[self.s+key]
-        return self.v[key]
+        if isinstance(key, slice): #if key=slice(start,stop,step), protect the start and stop
+            return self.v[slice(self.protect(key.start),self.protect(key.stop),key.step)]
+        return self.v[self.protect(key)]
 
 
 N=10
-vec=range(1,N+1)
+vec=[0]*N
+for i in range(0,N):
+	vec[i]=random.uniform(-1,1)
 arr=array(vec)
 
 pset = gp.PrimitiveSetTyped("main", [array], float)
-# pset.addPrimitive(operator.add, [float, float], float)
+pset.addPrimitive(operator.add, [float, float], float)
 # pset.addPrimitive(operator.sub, [float, float], float)
 # pset.addPrimitive(operator.mul, [float, float], float)
 # pset.addPrimitive(protectedDiv, [float, float], float)
@@ -94,7 +122,8 @@ pset = gp.PrimitiveSetTyped("main", [array], float)
 # pset.addPrimitive(idem, [int], int)
 pset.addPrimitive(part, [array,int], float)
 pset.addPrimitive(shift, [array,int], float)
-pset.addEphemeralConstant("randI", lambda: random.randint(-10,N-1),int)
+# pset.addPrimitive(SMA, [array,int,int], float)
+pset.addEphemeralConstant("randI", lambda: random.randint(0,N-1),int)
 # pset.addEphemeralConstant("randF", lambda: random.uniform(0,1),float)
 
 # pset.renameArguments(ARG0="x")
@@ -135,7 +164,8 @@ toolbox.register("compile", gp.compile, pset=pset)
 def myfit(ind,arg):
     # Transform the tree expression in a callable function
     func = toolbox.compile(expr=ind)
-    out = (func(arg)-arg[4])**2
+    out = (func(arg)-SMA(arg,4,2))**2
+    # out = (func(arg)-arg[4])**2
     return out,
 #
 toolbox.register("evaluate", myfit,arg=arr)
@@ -157,9 +187,10 @@ mstats.register("max", numpy.max)
 
 pop = toolbox.population(n=500)
 hof = tools.HallOfFame(1)
-pop, log = algorithms.eaSimple(pop, toolbox, 0.5, 0.3, 10, stats=mstats,
+pop, log = algorithms.eaSimple(pop, toolbox, 0.5, 0.3, 50, stats=mstats,
                                    halloffame=hof, verbose=True)
 
+print(arr,SMA(arr,4,2))
 print(hof[0])
 
 
