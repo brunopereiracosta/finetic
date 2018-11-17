@@ -19,21 +19,6 @@ from deap import creator
 from deap import tools
 from deap import gp
 
-
-###Loosely Typed GP, não é adequado porque liga qq tipo de nós sem restrições. Adequado para funções
-#que recebem e retornam o mesmo tipo de varíavel.
-#pset.addPrimitive(operator.add, 2)
-#pset.addPrimitive(operator.sub, 2)
-#pset.addPrimitive(operator.mul, 2)
-#pset.addPrimitive(operator.neg, 1)
-#pset.addPrimitive(math.cos, 1)
-#pset.addPrimitive(math.sin, 1)
-#pset.addEphemeralConstant("rand101", lambda: random.randint(-1,1))
-#When the program appends an ephemeral constant terminal to a tree, the function it
-#contains is executed, and its result is inserted as a constant terminal. In this case, those constant ter
-#minals can take the values -1, 0 or 1.
-
-
 ###Strongly Typed GP
 #In strongly typed GP, every primitive and terminal is assigned a specific type. The output type of a
 #primitive must match the input type of another one for them to be connected. For example, if a primitive
@@ -110,8 +95,6 @@ pset.renameArguments(ARG0="x")
 #primitive can only have the terminal 3.0, the if_then_else function or the "y" as input, which are the only
 #floats defined.
 
-
-
 creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
 creator.create("Individual", gp.PrimitiveTree, fitness=creator.FitnessMin,
                pset=pset)
@@ -148,8 +131,10 @@ mstats.register("max", numpy.max)
 
 pop = toolbox.population(n=500)
 hof = tools.HallOfFame(1)
-pop, log = algorithms.eaSimple(pop, toolbox, 0.5, 0.3, 1000, stats=mstats,
+pop, log = algorithms.eaSimple(pop, toolbox, 0.5, 0.3, 200, stats=mstats,
                                    halloffame=hof, verbose=True)
+
+print(hof[0])
 
 ##
 #expr = toolbox.individual()
