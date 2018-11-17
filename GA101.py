@@ -1,3 +1,6 @@
+##DEVELOPED
+from gp_edit import *
+
 #coding=utf-8
 import random
 import operator
@@ -61,6 +64,8 @@ def idem(x):
 class A:
     def __init__(self, v):
         self.v = v
+    def __getitem__(self, key):
+        return self.v[key]
 
 N=10
 vec=range(1,N+1)
@@ -81,11 +86,11 @@ pset = gp.PrimitiveSetTyped("main", [A], float)
 #pset.addPrimitive(math.atan, [float], float)
 #pset.addPrimitive(math.log1p, [float], float)
 #pset.addPrimitive(math.exp, [float], float)
-pset.addPrimitive(idem, [A], A)
-pset.addPrimitive(idem, [int], int)
+# pset.addPrimitive(idem, [A], A)
+# pset.addPrimitive(idem, [int], int)
 pset.addPrimitive(part, [A,int], float)
 pset.addEphemeralConstant("randI", lambda: random.randint(0,N-1),int)
-pset.addEphemeralConstant("randF", lambda: random.uniform(0,1),float)
+# pset.addEphemeralConstant("randF", lambda: random.uniform(0,1),float)
 
 # pset.renameArguments(ARG0="x")
 #pset.renameArguments(ARG1="y")
@@ -110,7 +115,7 @@ creator.create("Individual", gp.PrimitiveTree, fitness=creator.FitnessMin,
                pset=pset)
 
 toolbox = base.Toolbox()
-toolbox.register("expr", gp.genGrow, pset=pset, min_=1, max_=15)
+toolbox.register("expr", genGrow_edit, pset=pset, min_=1, max_=15)
 toolbox.register("individual", tools.initIterate, creator.Individual,toolbox.expr)
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 toolbox.register("compile", gp.compile, pset=pset)
@@ -125,14 +130,14 @@ toolbox.register("compile", gp.compile, pset=pset)
 def myfit(ind,arg):
     # Transform the tree expression in a callable function
     func = toolbox.compile(expr=ind)
-    out = (func(arg)-arg.v[5])**2
+    out = (func(arg)-arg[5])**2
     return out,
 #
 toolbox.register("evaluate", myfit,arg=vecA)
 #
 toolbox.register("select", tools.selBest)
 toolbox.register("mate", gp.cxOnePointLeafBiased,termpb=0.2)
-toolbox.register("expr_mut", gp.genGrow, min_=0, max_=5)
+toolbox.register("expr_mut", genGrow_edit, min_=0, max_=5)
 toolbox.register("mutate", gp.mutUniform, expr=toolbox.expr_mut, pset=pset)
 toolbox.decorate("mate", gp.staticLimit(key=operator.attrgetter("height"), max_value=17))
 toolbox.decorate("mutate", gp.staticLimit(key=operator.attrgetter("height"), max_value=17))
