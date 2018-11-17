@@ -47,7 +47,7 @@ def shift(input):
     return random.randint(0, len(input))
 
 def part(input,ind):
-    return input[ind]
+    return input.v[ind]
 
 def protectedDiv(left, right):
     try:
@@ -55,12 +55,18 @@ def protectedDiv(left, right):
     except ZeroDivisionError:
         return 1
 
+def idem(x):
+    return x
 
+class A:
+    def __init__(self, v):
+        self.v = v
 
-N=2
+N=10
 vec=range(1,N+1)
+vecA=A(vec)
 
-pset = gp.PrimitiveSetTyped("main", [[float,float]], float)
+pset = gp.PrimitiveSetTyped("main", [A], float)
 # pset.addPrimitive(operator.add, [float, float], float)
 # pset.addPrimitive(operator.sub, [float, float], float)
 # pset.addPrimitive(operator.mul, [float, float], float)
@@ -75,9 +81,10 @@ pset = gp.PrimitiveSetTyped("main", [[float,float]], float)
 #pset.addPrimitive(math.atan, [float], float)
 #pset.addPrimitive(math.log1p, [float], float)
 #pset.addPrimitive(math.exp, [float], float)
-
-pset.addPrimitive(part, [[float,float], int], float)
-pset.addEphemeralConstant("rand101", lambda: random.randint(0,10),int)
+pset.addPrimitive(idem, [A], A)
+pset.addPrimitive(idem, [int], int)
+pset.addPrimitive(part, [A,int], float)
+pset.addEphemeralConstant("rand101", lambda: random.randint(0,N-1),int)
 
 # pset.renameArguments(ARG0="x")
 #pset.renameArguments(ARG1="y")
@@ -85,7 +92,7 @@ pset.addEphemeralConstant("rand101", lambda: random.randint(0,10),int)
 #pset.addPrimitive(operator.xor, [bool, bool], bool)
 #pset.addPrimitive(if_then_else, [bool, float, float], float)
 #pset.addTerminal(3.0, float)
-#pset.addTerminal(1, bool)
+pset.addTerminal(1, float)
 
 #In the last code sample, we first define an if then else function that returns the second argument
 #if the first argument is true and the third one otherwise. Then, we define our PrimitiveSetTyped. Again,
@@ -114,11 +121,13 @@ toolbox.register("compile", gp.compile, pset=pset)
 #     # and the real function : x**4 + x**3 + x**2 + x
 #     sqerrors = ((func(x) - x**4 - x**3 - x**2 - x)**2 for x in points)
 #     return math.fsum(sqerrors) / len(points),
-def myfit(ind):
+def myfit(ind,arg):
     # Transform the tree expression in a callable function
-    func = toolbox.compile(expr=individual)
-    return (func(ind)-vec[5])**2;
-toolbox.register("evaluate", myfit, points=[x/10. for x in range(-10,10)])
+    func = toolbox.compile(expr=ind)
+    out = (func(arg)-arg.v[5])**2
+    return out,
+#
+toolbox.register("evaluate", myfit,arg=vecA)
 #
 toolbox.register("select", tools.selBest)
 toolbox.register("mate", gp.cxOnePointLeafBiased,termpb=0.2)
@@ -137,7 +146,7 @@ mstats.register("max", numpy.max)
 
 pop = toolbox.population(n=500)
 hof = tools.HallOfFame(1)
-pop, log = algorithms.eaSimple(pop, toolbox, 0.5, 0.3, 100, stats=mstats,
+pop, log = algorithms.eaSimple(pop, toolbox, 0.5, 0.3, 10, stats=mstats,
                                    halloffame=hof, verbose=True)
 
 print(hof[0])
