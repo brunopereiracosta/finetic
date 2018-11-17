@@ -46,8 +46,8 @@ def window(input):
 def shift(input):
     return random.randint(0, len(input))
 
-def part(input):
-    return random.randint(0, len(input))
+def part(input,ind):
+    return input[ind]
 
 def protectedDiv(left, right):
     try:
@@ -57,27 +57,29 @@ def protectedDiv(left, right):
 
 
 
+N=2
+vec=range(1,N+1)
 
-
-pset = gp.PrimitiveSetTyped("main", [float], float)
-pset.addPrimitive(operator.add, [float, float], float)
-pset.addPrimitive(operator.sub, [float, float], float)
-pset.addPrimitive(operator.mul, [float, float], float)
-pset.addPrimitive(protectedDiv, [float, float], float)
+pset = gp.PrimitiveSetTyped("main", [[float,float]], float)
+# pset.addPrimitive(operator.add, [float, float], float)
+# pset.addPrimitive(operator.sub, [float, float], float)
+# pset.addPrimitive(operator.mul, [float, float], float)
+# pset.addPrimitive(protectedDiv, [float, float], float)
 #pset.addPrimitive(operator.pow, [float, float], float)
-pset.addPrimitive(pow2, [float], float)
+# pset.addPrimitive(pow2, [float], float)
 #pset.addPrimitive(math.sqrt, [float], float)
-pset.addPrimitive(operator.abs, [float], float)
-pset.addPrimitive(math.cos, [float], float)
-pset.addPrimitive(math.sin, [float], float)
-pset.addPrimitive(math.tan, [float], float)
+# pset.addPrimitive(operator.abs, [float], float)
+# pset.addPrimitive(math.cos, [float], float)
+# pset.addPrimitive(math.sin, [float], float)
+# pset.addPrimitive(math.tan, [float], float)
 #pset.addPrimitive(math.atan, [float], float)
 #pset.addPrimitive(math.log1p, [float], float)
 #pset.addPrimitive(math.exp, [float], float)
 
-pset.addEphemeralConstant("rand101", lambda: random.randint(-1,1),int)
+pset.addPrimitive(part, [[float,float], int], float)
+pset.addEphemeralConstant("rand101", lambda: random.randint(0,10),int)
 
-pset.renameArguments(ARG0="x")
+# pset.renameArguments(ARG0="x")
 #pset.renameArguments(ARG1="y")
 
 #pset.addPrimitive(operator.xor, [bool, bool], bool)
@@ -105,14 +107,18 @@ toolbox.register("individual", tools.initIterate, creator.Individual,toolbox.exp
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 toolbox.register("compile", gp.compile, pset=pset)
 #
-def evalSymbReg(individual, points):
+# def evalSymbReg(individual, points):
+#     # Transform the tree expression in a callable function
+#     func = toolbox.compile(expr=individual)
+#     # Evaluate the mean squared error between the expression
+#     # and the real function : x**4 + x**3 + x**2 + x
+#     sqerrors = ((func(x) - x**4 - x**3 - x**2 - x)**2 for x in points)
+#     return math.fsum(sqerrors) / len(points),
+def myfit(ind):
     # Transform the tree expression in a callable function
     func = toolbox.compile(expr=individual)
-    # Evaluate the mean squared error between the expression
-    # and the real function : x**4 + x**3 + x**2 + x
-    sqerrors = ((func(x) - x**4 - x**3 - x**2 - x)**2 for x in points)
-    return math.fsum(sqerrors) / len(points),
-toolbox.register("evaluate", evalSymbReg, points=[x/10. for x in range(-10,10)])
+    return (func(ind)-vec[5])**2;
+toolbox.register("evaluate", myfit, points=[x/10. for x in range(-10,10)])
 #
 toolbox.register("select", tools.selBest)
 toolbox.register("mate", gp.cxOnePointLeafBiased,termpb=0.2)
@@ -131,7 +137,7 @@ mstats.register("max", numpy.max)
 
 pop = toolbox.population(n=500)
 hof = tools.HallOfFame(1)
-pop, log = algorithms.eaSimple(pop, toolbox, 0.5, 0.3, 200, stats=mstats,
+pop, log = algorithms.eaSimple(pop, toolbox, 0.5, 0.3, 100, stats=mstats,
                                    halloffame=hof, verbose=True)
 
 print(hof[0])
