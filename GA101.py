@@ -5,11 +5,11 @@ import math
 
 
 
-import pandas as pd
-data = pd.read_csv('/Users/bpc/Desktop/Project B.C./R/qantas.csv', sep="\t")
-data.head()
-date = data['Date'].values
-lastprice=data['Last Price'].values
+#import pandas as pd
+#data = pd.read_csv('/Users/bpc/Desktop/Project B.C./R/qantas.csv', sep="\t")
+#data.head()
+#date = data['Date'].values
+#lastprice=data['Last Price'].values
 
 import numpy
 
