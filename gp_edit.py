@@ -51,14 +51,14 @@ def generate_edit(pset, min_, max_, condition, type_=None):
     stack = [(0, type_)]
 
 #ADDED
-    def add_terminal(retry=True):
+    def add_terminal(type_,retry=True):
         try:
             term = random.choice(pset.terminals[type_])
         except IndexError:
             if retry:
-                add_primitive(False)
+                add_primitive(type_,False)
             else:
-                emit_fail(IndexError)
+                emit_fail(type_,IndexError)
             return
 
         if isclass(term):
@@ -66,14 +66,14 @@ def generate_edit(pset, min_, max_, condition, type_=None):
         expr.append(term)
 
 #ADDED
-    def add_primitive(retry=True):
+    def add_primitive(type_,retry=True):
         try:
             prim = random.choice(pset.primitives[type_])
         except IndexError:
             if retry:
-                add_terminal(False)
+                add_terminal(type_,False)
             else:
-                emit_fail(IndexError)
+                emit_fail(type_,IndexError)
             return
 
         expr.append(prim)
@@ -81,7 +81,7 @@ def generate_edit(pset, min_, max_, condition, type_=None):
             stack.append((depth + 1, arg))
 
 #ADDED
-    def emit_fail(IndexError):
+    def emit_fail(IndexError,type_):
         _, _, traceback = sys.exc_info()
         raise IndexError, "The gp.generate function tried to add "\
                           "a terminal of type '%s', but there is "\
@@ -91,8 +91,8 @@ def generate_edit(pset, min_, max_, condition, type_=None):
     while len(stack) != 0:
         depth, type_ = stack.pop()
         if condition(height, depth):
-            add_terminal()
+            add_terminal(type_)
         else:
-            add_primitive()
+            add_primitive(type_)
     return expr
 
