@@ -84,7 +84,8 @@ pset = gp.PrimitiveSetTyped("main", [A], float)
 pset.addPrimitive(idem, [A], A)
 pset.addPrimitive(idem, [int], int)
 pset.addPrimitive(part, [A,int], float)
-pset.addEphemeralConstant("rand101", lambda: random.randint(0,N-1),int)
+pset.addEphemeralConstant("randI", lambda: random.randint(0,N-1),int)
+pset.addEphemeralConstant("randF", lambda: random.uniform(0,1),float)
 
 # pset.renameArguments(ARG0="x")
 #pset.renameArguments(ARG1="y")
@@ -92,7 +93,7 @@ pset.addEphemeralConstant("rand101", lambda: random.randint(0,N-1),int)
 #pset.addPrimitive(operator.xor, [bool, bool], bool)
 #pset.addPrimitive(if_then_else, [bool, float, float], float)
 #pset.addTerminal(3.0, float)
-pset.addTerminal(1, float)
+# pset.addTerminal(1, float)
 
 #In the last code sample, we first define an if then else function that returns the second argument
 #if the first argument is true and the third one otherwise. Then, we define our PrimitiveSetTyped. Again,
