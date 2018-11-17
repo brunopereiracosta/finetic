@@ -46,11 +46,11 @@ def get_price(input):
 def window(input):
     return random.randint(0, len(input))
 
-def shift(input):
-    return random.randint(0, len(input))
+def shift(arr,ind):
+    return arr[-max(0,ind)]
 
-def part(input,ind):
-    return input.v[ind]
+def part(arr,ind):
+    return arr[max(0,ind)]
 
 def protectedDiv(left, right):
     try:
@@ -61,17 +61,21 @@ def protectedDiv(left, right):
 def idem(x):
     return x
 
-class A:
+class array:
     def __init__(self, v):
         self.v = v
+        self.s = len(v)
     def __getitem__(self, key):
+    	if key<0:
+    		return self.v[self.s+key]
         return self.v[key]
+
 
 N=10
 vec=range(1,N+1)
-vecA=A(vec)
+arr=array(vec)
 
-pset = gp.PrimitiveSetTyped("main", [A], float)
+pset = gp.PrimitiveSetTyped("main", [array], float)
 # pset.addPrimitive(operator.add, [float, float], float)
 # pset.addPrimitive(operator.sub, [float, float], float)
 # pset.addPrimitive(operator.mul, [float, float], float)
@@ -88,8 +92,9 @@ pset = gp.PrimitiveSetTyped("main", [A], float)
 #pset.addPrimitive(math.exp, [float], float)
 # pset.addPrimitive(idem, [A], A)
 # pset.addPrimitive(idem, [int], int)
-pset.addPrimitive(part, [A,int], float)
-pset.addEphemeralConstant("randI", lambda: random.randint(0,N-1),int)
+pset.addPrimitive(part, [array,int], float)
+pset.addPrimitive(shift, [array,int], float)
+pset.addEphemeralConstant("randI", lambda: random.randint(-10,N-1),int)
 # pset.addEphemeralConstant("randF", lambda: random.uniform(0,1),float)
 
 # pset.renameArguments(ARG0="x")
@@ -130,10 +135,10 @@ toolbox.register("compile", gp.compile, pset=pset)
 def myfit(ind,arg):
     # Transform the tree expression in a callable function
     func = toolbox.compile(expr=ind)
-    out = (func(arg)-arg[5])**2
+    out = (func(arg)-arg[4])**2
     return out,
 #
-toolbox.register("evaluate", myfit,arg=vecA)
+toolbox.register("evaluate", myfit,arg=arr)
 #
 toolbox.register("select", tools.selBest)
 toolbox.register("mate", gp.cxOnePointLeafBiased,termpb=0.2)
