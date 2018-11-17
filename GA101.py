@@ -136,6 +136,7 @@ pop, log = algorithms.eaSimple(pop, toolbox, 0.5, 0.3, 200, stats=mstats,
 
 print(hof[0])
 
+
 ##
 #expr = toolbox.individual()
 #nodes, edges, labels = gp.graph(expr)
