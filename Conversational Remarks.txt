@@ -1,0 +1,9 @@
+[18/11/18]
+
+Tiago's recording final remarks:
+
+-Class 'array' added to GA101.py: allows for manipulation of arrays within GP including a feature protecting against invalid access of array;
+-Function 'part' added to GA101.py: access to specific absolute position within array;
+-Function 'shift' added to GA101.py: access to specific absolute position within array counting from the end;
+-Function 'SMA' added to GA101.py: receives array, range and number of days to go back (ind=when does SMA finishes calculation, if ind=3 SMA is computed within given range and its last day is array_last_day-3);
+-Redefinition of generate function from gp.py. New gp_edit.py file with brand new generate_edit function which does the following: in the absence of a valid primitive when required, tries to add a terminal and vice-versa. In case of double failed attempt, error is presented.
