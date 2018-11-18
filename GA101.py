@@ -85,9 +85,9 @@ class array:
         return self.v.__repr__()
 
     def protect(self,key): #make it so that key cannot excede [-N,N-1]
-        if key>0 and key>=self.s: #protect agains invalid indices
+        if key>=self.s: #protect agains invalid indices
             return self.s-1
-        elif key<0 and -key>self.s: #protect agains invalid indices
+        elif -key>self.s: #protect agains invalid indices
             return -self.s
         return key
 
