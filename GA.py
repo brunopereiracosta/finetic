@@ -1,18 +1,9 @@
-##DEVELOPED
+#DEVELOPED
 from gp_edit import *
 
-#coding=utf-8
 import random
 import operator
 import math
-
-epsilon = 1e-20
-
-#import pandas as pd
-#data = pd.read_csv('/Users/bpc/Desktop/Project B.C./R/qantas.csv', sep="\t")
-#data.head()
-#date = data['Date'].values
-#lastprice=data['Last Price'].values
 
 import numpy
 
@@ -22,11 +13,7 @@ from deap import creator
 from deap import tools
 from deap import gp
 
-###Strongly Typed GP
-#In strongly typed GP, every primitive and terminal is assigned a specific type. The output type of a
-#primitive must match the input type of another one for them to be connected. For example, if a primitive
-#returns a boolean, it is guaranteed that this value will not be multiplied with a float if the multiplication
-#operator operates only on floats.
+epsilon = 1e-20
 
 def pow2(input):
     return pow(input,2)
@@ -61,8 +48,6 @@ def protectedDiv(left, right):
     except ZeroDivisionError:
         return left / epsilon
 
-#Note: add line 'pset.addPrimitive(SMA, [array,int,int], float)' to try to add SMA as primitive
-
 #window and ind SHOULD BE POSTITIVE
 def SMA(arr,window,ind):
 	if window==0: #protect agains division by 0 (choose arr.s just as a choice...)
@@ -96,7 +81,6 @@ class array:
             return self.v[slice(self.protect(key.start),self.protect(key.stop),key.step)]
         return self.v[self.protect(key)]
 
-
 N=10
 vec=[0]*N
 for i in range(0,N):
@@ -108,68 +92,56 @@ pset.addPrimitive(operator.add, [float, float], float)
 # pset.addPrimitive(operator.sub, [float, float], float)
 # pset.addPrimitive(operator.mul, [float, float], float)
 # pset.addPrimitive(protectedDiv, [float, float], float)
-#pset.addPrimitive(operator.pow, [float, float], float)
+# pset.addPrimitive(operator.pow, [float, float], float)
 # pset.addPrimitive(pow2, [float], float)
-#pset.addPrimitive(math.sqrt, [float], float)
+# pset.addPrimitive(math.sqrt, [float], float)
 # pset.addPrimitive(operator.abs, [float], float)
 # pset.addPrimitive(math.cos, [float], float)
 # pset.addPrimitive(math.sin, [float], float)
 # pset.addPrimitive(math.tan, [float], float)
-#pset.addPrimitive(math.atan, [float], float)
-#pset.addPrimitive(math.log1p, [float], float)
-#pset.addPrimitive(math.exp, [float], float)
+# pset.addPrimitive(math.atan, [float], float)
+# pset.addPrimitive(math.log1p, [float], float)
+# pset.addPrimitive(math.exp, [float], float)
 # pset.addPrimitive(idem, [A], A)
 # pset.addPrimitive(idem, [int], int)
 pset.addPrimitive(part, [array,int], float)
 pset.addPrimitive(shift, [array,int], float)
 # pset.addPrimitive(SMA, [array,int,int], float)
-pset.addEphemeralConstant("randI", lambda: random.randint(0,N-1),int)
+# pset.addEphemeralConstant("randI", lambda: random.randint(0,N-1),int)
 # pset.addEphemeralConstant("randF", lambda: random.uniform(0,1),float)
 
 # pset.renameArguments(ARG0="x")
-#pset.renameArguments(ARG1="y")
+# pset.renameArguments(ARG1="y")
 
-#pset.addPrimitive(operator.xor, [bool, bool], bool)
-#pset.addPrimitive(if_then_else, [bool, float, float], float)
-#pset.addTerminal(3.0, float)
-# pset.addTerminal(1, float)
-
-#In the last code sample, we first define an if then else function that returns the second argument
-#if the first argument is true and the third one otherwise. Then, we define our PrimitiveSetTyped. Again,
-#the procedure is named "main". The second argument defines the input types of the program. Here, "x" is a
-#bool and "y" is a float. The third argument defines the output type of the program as a float.
-#Adding primitives to this primitive now requires to set the input and output types of the primitives and terminal.
-#For example, we define our "if_then_else" function first argument as a boolean, the second and third argument
-#have to be floats. The function is defined as returning a float. We now understand that the multiplication
-#primitive can only have the terminal 3.0, the if_then_else function or the "y" as input, which are the only
-#floats defined.
+# pset.addPrimitive(operator.xor, [bool, bool], bool)
+# pset.addPrimitive(if_then_else, [bool, float, float], float)
+# pset.addTerminal(3.0, float)
+pset.addTerminal(1, int)
 
 creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
 creator.create("Individual", gp.PrimitiveTree, fitness=creator.FitnessMin,
                pset=pset)
+
+#
+def myfit(ind,arg):
+	# Transform the tree expression in a callable function
+	func = toolbox.compile(expr=ind)
+	out = (func(arg)-SMA(arg,4,2))**2
+	# out = (func(arg)-arg[4])**2
+	for i in range(1,500):
+		for j in range(1,500):
+			i
+	return out,
+#
 
 toolbox = base.Toolbox()
 toolbox.register("expr", genGrow_edit, pset=pset, min_=1, max_=15)
 toolbox.register("individual", tools.initIterate, creator.Individual,toolbox.expr)
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 toolbox.register("compile", gp.compile, pset=pset)
-#
-# def evalSymbReg(individual, points):
-#     # Transform the tree expression in a callable function
-#     func = toolbox.compile(expr=individual)
-#     # Evaluate the mean squared error between the expression
-#     # and the real function : x**4 + x**3 + x**2 + x
-#     sqerrors = ((func(x) - x**4 - x**3 - x**2 - x)**2 for x in points)
-#     return math.fsum(sqerrors) / len(points),
-def myfit(ind,arg):
-    # Transform the tree expression in a callable function
-    func = toolbox.compile(expr=ind)
-    out = (func(arg)-SMA(arg,4,2))**2
-    # out = (func(arg)-arg[4])**2
-    return out,
-#
+
 toolbox.register("evaluate", myfit,arg=arr)
-#
+
 toolbox.register("select", tools.selBest)
 toolbox.register("mate", gp.cxOnePointLeafBiased,termpb=0.2)
 toolbox.register("expr_mut", genGrow_edit, min_=0, max_=5)
@@ -185,34 +157,20 @@ mstats.register("std", numpy.std)
 mstats.register("min", numpy.min)
 mstats.register("max", numpy.max)
 
-pop = toolbox.population(n=500)
-hof = tools.HallOfFame(1)
-pop, log = algorithms.eaSimple(pop, toolbox, 0.5, 0.3, 50, stats=mstats,
-                                   halloffame=hof, verbose=True)
+# from scoop import futures
+# toolbox.register("map", futures.map) #PARALLELIZATION
+import multiprocessing
+pool = multiprocessing.Pool() 
+toolbox.register("map", pool.map) #PARALLELIZATION
 
-print(arr,SMA(arr,4,2))
-print(hof[0])
-
-
-##
-#expr = toolbox.individual()
-#nodes, edges, labels = gp.graph(expr)
-#tree = gp.PrimitiveTree(expr)
-#str(tree)
-
-#function = gp.compile(tree, pset)
-#function(10,20)
-
-#import matplotlib.pyplot as plt
-#import networkx as nx
+def main():
+	pop = toolbox.population(n=500)
+	hof = tools.HallOfFame(1)
+	pop, log = algorithms.eaSimple(pop, toolbox, 0.5, 0.3, 20, stats=mstats,
+	                                   halloffame=hof, verbose=True)
+	print(arr,SMA(arr,4,2))
+	print(hof[0])
 
 
-#g = nx.Graph()
-#g.add_nodes_from(nodes)
-#g.add_edges_from(edges)
-#pos = nx.circular_layout(g)
-
-#nx.draw_networkx_nodes(g, pos)
-#nx.draw_networkx_edges(g, pos)
-#nx.draw_networkx_labels(g, pos, labels)
-#plt.show()
+if __name__ == '__main__':
+	main()
