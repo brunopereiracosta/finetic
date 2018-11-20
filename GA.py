@@ -36,11 +36,11 @@ def window(input):
 #ind SHOULD BE POSTITIVE
 #part is exactly like shift for negative numbers, but we'll keep it separate because when introducing weights it might be useful to give shift and part different weights
 def shift(arr,ind):
-    return arr[-(ind+1)]
+	return arr[-(ind+1)]
 
 #ind SHOULD BE POSTITIVE
 def part(arr,ind):
-    return arr[ind]
+	return arr[ind]
 
 def protectedDiv(left, right):
     try:
@@ -55,6 +55,8 @@ def SMA(arr,window,ind):
 
 	if ind==0:
 		temp = arr[-window:]
+	elif window+ind>arr.s:
+		temp = arr[0:-ind]
 	else:
 		temp = arr[-window-ind:-ind]
 	return sum(temp)/window
@@ -66,20 +68,30 @@ class array:
         
     def __len__(self):
         return self.s
+    def __iter__(self): #in order for sum(array) to work
+        return self.v.__iter__()
     def __repr__(self): #this is only so that print(array) works
         return self.v.__repr__()
 
     def protect(self,key): #make it so that key cannot excede [-N,N-1]
         if key>=self.s: #protect agains invalid indices
-            return self.s-1
+        	print("WARNING: index over valid size (key={key}; size={size})".format(key=key,size=self.s))
+        	return self.s-1
         elif -key>self.s: #protect agains invalid indices
-            return -self.s
+        	print("WARNING: index under valid size (key={key}; size={size})".format(key=key,size=self.s))
+        	return 0
         return key
 
     def __getitem__(self, key):
         if isinstance(key, slice): #if key=slice(start,stop,step), protect the start and stop
-            return self.v[slice(self.protect(key.start),self.protect(key.stop),key.step)]
+        	if key.stop==None or key.stop==sys.maxsize or key.stop==self.s:
+        		stop=self.s
+        	else:
+        		stop=self.protect(key.stop)
+        	out = array(self.v[slice(self.protect(key.start),stop,key.step)])
+        	return out
         return self.v[self.protect(key)]
+
 
 N=10
 vec=[0]*N
@@ -88,7 +100,12 @@ for i in range(0,N):
 arr=array(vec)
 
 pset = gp.PrimitiveSetTyped("main", [array], float)
-pset.addPrimitive(operator.add, [float, float], float)
+pset.addPrimitive(SMA, [array, int, int], float)
+# pset.addPrimitive(operator.add, [float, float], float)
+# pset.addPrimitive(part, [array,int], float)
+# pset.addPrimitive(shift, [array,int], float)
+pset.addEphemeralConstant("randI", lambda: random.randint(0,N-1),int)
+# pset.addEphemeralConstant("randF", lambda: random.uniform(-1,1),float)
 # pset.addPrimitive(operator.sub, [float, float], float)
 # pset.addPrimitive(operator.mul, [float, float], float)
 # pset.addPrimitive(protectedDiv, [float, float], float)
@@ -104,11 +121,7 @@ pset.addPrimitive(operator.add, [float, float], float)
 # pset.addPrimitive(math.exp, [float], float)
 # pset.addPrimitive(idem, [A], A)
 # pset.addPrimitive(idem, [int], int)
-pset.addPrimitive(part, [array,int], float)
-pset.addPrimitive(shift, [array,int], float)
 # pset.addPrimitive(SMA, [array,int,int], float)
-# pset.addEphemeralConstant("randI", lambda: random.randint(0,N-1),int)
-# pset.addEphemeralConstant("randF", lambda: random.uniform(0,1),float)
 
 # pset.renameArguments(ARG0="x")
 # pset.renameArguments(ARG1="y")
