@@ -58,7 +58,10 @@ def generate_edit(pset, min_, max_, condition, type_=None):
             if retry:
                 add_primitive(type_,False)
             else:
-                emit_fail(type_,IndexError)
+                _, _, traceback = sys.exc_info()
+                raise IndexError, "The gp.generate function tried to add "\
+                                  "a terminal of type '%s', but there is "\
+                                  "none available." % (type_,), traceback
             return
 
         if isclass(term):
@@ -73,19 +76,15 @@ def generate_edit(pset, min_, max_, condition, type_=None):
             if retry:
                 add_terminal(type_,False)
             else:
-                emit_fail(type_,IndexError)
+                _, _, traceback = sys.exc_info()
+                raise IndexError, "The gp.generate function tried to add "\
+                                  "a terminal of type '%s', but there is "\
+                                  "none available." % (type_,), traceback
             return
 
         expr.append(prim)
         for arg in reversed(prim.args):
             stack.append((depth + 1, arg))
-
-#ADDED
-    def emit_fail(IndexError,type_):
-        _, _, traceback = sys.exc_info()
-        raise IndexError, "The gp.generate function tried to add "\
-                          "a terminal of type '%s', but there is "\
-                          "none available." % (type_,), traceback
 
 #CHANGED
     while len(stack) != 0:
