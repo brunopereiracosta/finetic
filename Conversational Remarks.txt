@@ -7,3 +7,13 @@ Tiago's recording final remarks:
 -Function 'shift' added to GA101.py: access to specific absolute position within array counting from the end;
 -Function 'SMA' added to GA101.py: receives array, range and number of days to go back (ind=when does SMA finishes calculation, if ind=3 SMA is computed within given range and its last day is array_last_day-3);
 -Redefinition of generate function from gp.py. New gp_edit.py file with brand new generate_edit function which does the following: in the absence of a valid primitive when required, tries to add a terminal and vice-versa. In case of double failed attempt, error is presented.
+
+[19/11/18]
+
+-Functions receive arrays as single objects;
+-Learning through partition of main information into several pieces;
+-"E aqui nota: Importante, importante, importante, nos for's e vetores quando se pede range, o 2º argumento ele nunca chega lá, só chega a n-1. 😂"
+-Think well about ranges and distributions when generating constants;
+-Mutation: perform tweaks in constants
+-Consider introduction of log price;
+-SCOOP;

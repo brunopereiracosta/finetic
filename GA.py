@@ -95,12 +95,13 @@ class array:
         return self.v[self.protect(key)]
 
 
-N=100
+N=1000
 n=10
 vec=[0]*N
 for i in range(1,N):
-	vec[i]=math.sin(i/5.)
-	# vec[i]=random.uniform(-1,1)
+    # vec[i]=math.sin(i/5.)
+    # vec[i]=random.uniform(-1,1)
+    vec[i]=-i
 arr=array(vec)
 
 pset = gp.PrimitiveSetTyped("main", [array], float)
@@ -127,7 +128,7 @@ pset.addPrimitive(protectedDiv, [float, float], float)
 # pset.addPrimitive(idem, [int], int)
 # pset.addPrimitive(SMA, [array,int,int], float)
 
-# pset.renameArguments(ARG0="x")
+pset.renameArguments(ARG0="x")
 # pset.renameArguments(ARG1="y")
 
 # pset.addPrimitive(operator.xor, [bool, bool], bool)
@@ -190,11 +191,11 @@ elif parallel==2:
 	toolbox.register("map", pool.map) #PARALLELIZATION
 
 def main():
-	pop = toolbox.population(n=500)
+	pop = toolbox.population(n=100)
 	hof = tools.HallOfFame(1)
-	pop, log = algorithms.eaSimple(pop, toolbox, 0.5, 0.3, 200, stats=mstats,
+	pop, log = algorithms.eaSimple(pop, toolbox, 0.5, 0.3, 50, stats=mstats,
 	                                   halloffame=hof, verbose=True)
-	print(arr,SMA(arr,4,2))
+                                       #print(arr,SMA(arr,4,2))
 	print(hof[0])
 
 
