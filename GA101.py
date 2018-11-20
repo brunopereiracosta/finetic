@@ -43,11 +43,11 @@ def window(input):
 #ind SHOULD BE POSTITIVE
 #part is exactly like shift for negative numbers, but we'll keep it separate because when introducing weights it might be useful to give shift and part different weights
 def shift(arr,ind):
-    return arr[-(ind+1)]
+	return arr[-(ind+1)]
 
 #ind SHOULD BE POSTITIVE
 def part(arr,ind):
-    return arr[ind]
+	return arr[ind]
 
 def protectedDiv(left, right):
     try:
@@ -80,14 +80,16 @@ class array:
 
     def protect(self,key): #make it so that key cannot excede [-N,N-1]
         if key>=self.s: #protect agains invalid indices
-            return self.s-1
+        	print("WARNING: index over valid size (key={key}; size={size})".format(key=key,size=self.s))
+        	return self.s-1
         elif -key>self.s: #protect agains invalid indices
-            return -self.s
+        	print("WARNING: index under valid size (key={key}; size={size})".format(key=key,size=self.s))
+        	return -self.s
         return key
 
     def __getitem__(self, key):
         if isinstance(key, slice): #if key=slice(start,stop,step), protect the start and stop
-            return self.v[slice(self.protect(key.start),self.protect(key.stop),key.step)]
+            return array(self.v[slice(self.protect(key.start),self.protect(key.stop),key.step)])
         return self.v[self.protect(key)]
 
 
