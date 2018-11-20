@@ -15,6 +15,8 @@ from deap import gp
 
 epsilon = 1e-20
 
+parallel = 2 #(0-None, 1-SCOOP, 2-Multi)
+
 def pow2(input):
     return pow(input,2)
 
@@ -93,22 +95,24 @@ class array:
         return self.v[self.protect(key)]
 
 
-N=10
+N=100
+n=10
 vec=[0]*N
-for i in range(0,N):
-	vec[i]=random.uniform(-1,1)
+for i in range(1,N):
+	vec[i]=math.sin(i/5.)
+	# vec[i]=random.uniform(-1,1)
 arr=array(vec)
 
 pset = gp.PrimitiveSetTyped("main", [array], float)
 pset.addPrimitive(SMA, [array, int, int], float)
-# pset.addPrimitive(operator.add, [float, float], float)
-# pset.addPrimitive(part, [array,int], float)
-# pset.addPrimitive(shift, [array,int], float)
-pset.addEphemeralConstant("randI", lambda: random.randint(0,N-1),int)
-# pset.addEphemeralConstant("randF", lambda: random.uniform(-1,1),float)
-# pset.addPrimitive(operator.sub, [float, float], float)
-# pset.addPrimitive(operator.mul, [float, float], float)
-# pset.addPrimitive(protectedDiv, [float, float], float)
+pset.addPrimitive(operator.add, [float, float], float)
+pset.addPrimitive(part, [array,int], float)
+pset.addPrimitive(shift, [array,int], float)
+pset.addEphemeralConstant("randI", lambda: random.randint(0,n-1),int)
+pset.addEphemeralConstant("randF", lambda: random.uniform(-1,1),float)
+pset.addPrimitive(operator.sub, [float, float], float)
+pset.addPrimitive(operator.mul, [float, float], float)
+pset.addPrimitive(protectedDiv, [float, float], float)
 # pset.addPrimitive(operator.pow, [float, float], float)
 # pset.addPrimitive(pow2, [float], float)
 # pset.addPrimitive(math.sqrt, [float], float)
@@ -135,16 +139,23 @@ creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
 creator.create("Individual", gp.PrimitiveTree, fitness=creator.FitnessMin,
                pset=pset)
 
+def fitness_predictor(individual,arg):
+	func = toolbox.compile(expr=individual)
+	fit=0.
+	for i in range(n,N):
+		if ((func(arg[i-n:i])>0)==(arg[i]>arg[i-1])):
+			fit += -1
+	return fit,
 #
-def myfit(ind,arg):
-	# Transform the tree expression in a callable function
-	func = toolbox.compile(expr=ind)
-	out = (func(arg)-SMA(arg,4,2))**2
-	# out = (func(arg)-arg[4])**2
-	for i in range(1,500):
-		for j in range(1,500):
-			i
-	return out,
+# def myfit(ind,arg):
+# 	# Transform the tree expression in a callable function
+# 	func = toolbox.compile(expr=ind)
+# 	out = (func(arg)-SMA(arg,4,2))**2
+# 	# out = (func(arg)-arg[4])**2
+# 	for i in range(1,500):
+# 		for j in range(1,500):
+# 			i
+# 	return out,
 #
 
 toolbox = base.Toolbox()
@@ -153,7 +164,7 @@ toolbox.register("individual", tools.initIterate, creator.Individual,toolbox.exp
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 toolbox.register("compile", gp.compile, pset=pset)
 
-toolbox.register("evaluate", myfit,arg=arr)
+toolbox.register("evaluate", fitness_predictor, arg=arr)
 
 toolbox.register("select", tools.selBest)
 toolbox.register("mate", gp.cxOnePointLeafBiased,termpb=0.2)
@@ -170,16 +181,18 @@ mstats.register("std", numpy.std)
 mstats.register("min", numpy.min)
 mstats.register("max", numpy.max)
 
-# from scoop import futures
-# toolbox.register("map", futures.map) #PARALLELIZATION
-import multiprocessing
-pool = multiprocessing.Pool() 
-toolbox.register("map", pool.map) #PARALLELIZATION
+if parallel==1:
+	from scoop import futures
+	toolbox.register("map", futures.map) #PARALLELIZATION
+elif parallel==2:
+	import multiprocessing
+	pool = multiprocessing.Pool() 
+	toolbox.register("map", pool.map) #PARALLELIZATION
 
 def main():
 	pop = toolbox.population(n=500)
 	hof = tools.HallOfFame(1)
-	pop, log = algorithms.eaSimple(pop, toolbox, 0.5, 0.3, 20, stats=mstats,
+	pop, log = algorithms.eaSimple(pop, toolbox, 0.5, 0.3, 200, stats=mstats,
 	                                   halloffame=hof, verbose=True)
 	print(arr,SMA(arr,4,2))
 	print(hof[0])
