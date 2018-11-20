@@ -22,12 +22,6 @@ from deap import creator
 from deap import tools
 from deap import gp
 
-###Strongly Typed GP
-#In strongly typed GP, every primitive and terminal is assigned a specific type. The output type of a
-#primitive must match the input type of another one for them to be connected. For example, if a primitive
-#returns a boolean, it is guaranteed that this value will not be multiplied with a float if the multiplication
-#operator operates only on floats.
-
 def pow2(input):
     return pow(input,2)
 
@@ -97,14 +91,19 @@ class array:
         return self.v[self.protect(key)]
 
 
-N=10
+N=100
 vec=[0]*N
 for i in range(0,N):
 	vec[i]=random.uniform(-1,1)
 arr=array(vec)
 
 pset = gp.PrimitiveSetTyped("main", [array], float)
+pset.addPrimitive(SMA, [array, int, int], float)
 pset.addPrimitive(operator.add, [float, float], float)
+pset.addPrimitive(part, [array,int], float)
+pset.addPrimitive(shift, [array,int], float)
+pset.addEphemeralConstant("randI", lambda: random.randint(0,N-1),int)
+pset.addEphemeralConstant("randF", lambda: random.uniform(-1,1),float)
 # pset.addPrimitive(operator.sub, [float, float], float)
 # pset.addPrimitive(operator.mul, [float, float], float)
 # pset.addPrimitive(protectedDiv, [float, float], float)
@@ -120,11 +119,7 @@ pset.addPrimitive(operator.add, [float, float], float)
 #pset.addPrimitive(math.exp, [float], float)
 # pset.addPrimitive(idem, [A], A)
 # pset.addPrimitive(idem, [int], int)
-pset.addPrimitive(part, [array,int], float)
-pset.addPrimitive(shift, [array,int], float)
 # pset.addPrimitive(SMA, [array,int,int], float)
-pset.addEphemeralConstant("randI", lambda: random.randint(0,N-1),int)
-# pset.addEphemeralConstant("randF", lambda: random.uniform(0,1),float)
 
 # pset.renameArguments(ARG0="x")
 #pset.renameArguments(ARG1="y")
@@ -144,8 +139,8 @@ pset.addEphemeralConstant("randI", lambda: random.randint(0,N-1),int)
 #primitive can only have the terminal 3.0, the if_then_else function or the "y" as input, which are the only
 #floats defined.
 
-creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
-creator.create("Individual", gp.PrimitiveTree, fitness=creator.FitnessMin,
+creator.create("FitnessMax", base.Fitness, weights=(1.0,))
+creator.create("Individual", gp.PrimitiveTree, fitness=creator.FitnessMax,
                pset=pset)
 
 toolbox = base.Toolbox()
@@ -153,22 +148,25 @@ toolbox.register("expr", genGrow_edit, pset=pset, min_=1, max_=15)
 toolbox.register("individual", tools.initIterate, creator.Individual,toolbox.expr)
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 toolbox.register("compile", gp.compile, pset=pset)
-#
-# def evalSymbReg(individual, points):
-#     # Transform the tree expression in a callable function
-#     func = toolbox.compile(expr=individual)
-#     # Evaluate the mean squared error between the expression
-#     # and the real function : x**4 + x**3 + x**2 + x
-#     sqerrors = ((func(x) - x**4 - x**3 - x**2 - x)**2 for x in points)
-#     return math.fsum(sqerrors) / len(points),
-def myfit(ind,arg):
+
+#def myfit(ind,arg):
     # Transform the tree expression in a callable function
-    func = toolbox.compile(expr=ind)
-    out = (func(arg)-SMA(arg,4,2))**2
+    #func = toolbox.compile(expr=ind)
+    #out = (func(arg)-SMA(arg,4,2))**2
     # out = (func(arg)-arg[4])**2
-    return out,
-#
-toolbox.register("evaluate", myfit,arg=arr)
+#return out,
+
+fit=0
+def fitness_predictor(individual,arg):
+    global fit
+    func = toolbox.compile(expr=individual)
+    for i in range(N-10):
+        print(i)
+        if ((func(arg[0:9+i])>0)==(arg[9+i]>arg[9+i-1])):
+            fit += 1
+        return fit
+
+toolbox.register("evaluate", fitness_predictor,arg=arr)
 #
 toolbox.register("select", tools.selBest)
 toolbox.register("mate", gp.cxOnePointLeafBiased,termpb=0.2)
@@ -190,7 +188,7 @@ hof = tools.HallOfFame(1)
 pop, log = algorithms.eaSimple(pop, toolbox, 0.5, 0.3, 50, stats=mstats,
                                    halloffame=hof, verbose=True)
 
-print(arr,SMA(arr,4,2))
+#print(arr,SMA(arr,4,2))
 print(hof[0])
 
 
