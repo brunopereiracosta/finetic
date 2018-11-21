@@ -99,9 +99,9 @@ N=1000
 n=10
 vec=[0]*N
 for i in range(1,N):
-    # vec[i]=math.sin(i/5.)
+    vec[i]=math.sin(i/5.)
     # vec[i]=random.uniform(-1,1)
-    vec[i]=-i
+    # vec[i]=-i
 arr=array(vec)
 
 pset = gp.PrimitiveSetTyped("main", [array], float)
@@ -167,7 +167,7 @@ toolbox.register("compile", gp.compile, pset=pset)
 
 toolbox.register("evaluate", fitness_predictor, arg=arr)
 
-toolbox.register("select", tools.selBest)
+toolbox.register("select", tools.selTournament, tournsize=3)
 toolbox.register("mate", gp.cxOnePointLeafBiased,termpb=0.2)
 toolbox.register("expr_mut", genGrow_edit, min_=0, max_=5)
 toolbox.register("mutate", gp.mutUniform, expr=toolbox.expr_mut, pset=pset)
@@ -193,7 +193,7 @@ elif parallel==2:
 def main():
 	pop = toolbox.population(n=100)
 	hof = tools.HallOfFame(1)
-	pop, log = algorithms.eaSimple(pop, toolbox, 0.5, 0.3, 50, stats=mstats,
+	pop, log = algorithms.eaSimple(pop, toolbox, 0.5, 0.1, 100, stats=mstats,
 	                                   halloffame=hof, verbose=True)
                                        #print(arr,SMA(arr,4,2))
 	print(hof[0])
