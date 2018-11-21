@@ -1,5 +1,6 @@
 #DEVELOPED
 from gp_edit import *
+from MyFuncs import *
 
 import random
 import operator
@@ -16,6 +17,24 @@ from deap import gp
 epsilon = 1e-20
 
 parallel = 2 #(0-None, 1-SCOOP, 2-Multi)
+
+import pandas as pd
+import time
+# clock
+start = time.time()
+# xls = pd.ExcelFile('./SECRET ADMIRER.xlsx')
+xls = pd.ExcelFile('./EURUSD.xlsx')
+end = time.time()
+elapsed = end - start
+print(elapsed)
+EURUSD = xls.parse(0)
+price, years, weekdays = read_sheet(EURUSD)
+
+
+# USDEUR = xls.parse(xls.sheet_names.index('EURUSD BGN'))
+
+def error(arr):
+    return [(arr[i]-arr[i-1])/arr[i-1] for i in range(1,len(arr))]
 
 def pow2(input):
     return pow(input,2)
@@ -140,13 +159,13 @@ creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
 creator.create("Individual", gp.PrimitiveTree, fitness=creator.FitnessMin,
                pset=pset)
 
-def fitness_predictor(individual,arg):
+def fitness_predictor(individual,arg,n):
 	func = toolbox.compile(expr=individual)
 	fit=0.
-	for i in range(n,N):
-		if ((func(arg[i-n:i])>0)==(arg[i]>arg[i-1])):
+	for i in range(n,len(arg)):
+		if ((func(arg[i-n:i])>0)==(arg[i]>0)):
 			fit += -1
-	return fit,
+	return fit/(len(arg)-n)*100,
 #
 # def myfit(ind,arg):
 # 	# Transform the tree expression in a callable function
@@ -165,7 +184,7 @@ toolbox.register("individual", tools.initIterate, creator.Individual,toolbox.exp
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 toolbox.register("compile", gp.compile, pset=pset)
 
-toolbox.register("evaluate", fitness_predictor, arg=arr)
+toolbox.register("evaluate", fitness_predictor, arg=array(error(price)), n=10)
 
 toolbox.register("select", tools.selTournament, tournsize=3)
 toolbox.register("mate", gp.cxOnePointLeafBiased,termpb=0.2)
@@ -191,9 +210,9 @@ elif parallel==2:
 	toolbox.register("map", pool.map) #PARALLELIZATION
 
 def main():
-	pop = toolbox.population(n=100)
+	pop = toolbox.population(n=1000)
 	hof = tools.HallOfFame(1)
-	pop, log = algorithms.eaSimple(pop, toolbox, 0.5, 0.1, 100, stats=mstats,
+	pop, log = algorithms.eaSimple(pop, toolbox, 0.5, 0.1, 200, stats=mstats,
 	                                   halloffame=hof, verbose=True)
                                        #print(arr,SMA(arr,4,2))
 	print(hof[0])
