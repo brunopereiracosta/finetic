@@ -69,6 +69,21 @@ def protectedDiv(left, right):
     except ZeroDivisionError:
         return left / epsilon
 
+def IF2(arg1,arg2,out1,out2):
+    if arg1>arg2:
+        return out1
+    return out2
+
+def IF(argB,out1,out2):
+    if argB:
+        return out1
+    return out2
+
+def gt(arg1,arg2):
+    if arg1>arg2:
+        return True
+    return False
+
 #window and ind SHOULD BE POSTITIVE
 def SMA(arr,window,ind):
 	if window==0: #protect agains division by 0 (choose arr.s just as a choice...)
@@ -114,14 +129,17 @@ class array:
         return self.v[self.protect(key)]
 
 
-N=1000
+# N=1000
+# n=10
+# vec=[0]*N
+# for i in range(1,N):
+#     vec[i]=math.sin(i/5.)
+#     # vec[i]=random.uniform(-1,1)
+#     # vec[i]=-i
+# arr=array(vec)
+
 n=10
-vec=[0]*N
-for i in range(1,N):
-    vec[i]=math.sin(i/5.)
-    # vec[i]=random.uniform(-1,1)
-    # vec[i]=-i
-arr=array(vec)
+errors=array(error(price))
 
 pset = gp.PrimitiveSetTyped("main", [array], float)
 pset.addPrimitive(SMA, [array, int, int], float)
@@ -147,7 +165,12 @@ pset.addPrimitive(protectedDiv, [float, float], float)
 # pset.addPrimitive(idem, [int], int)
 # pset.addPrimitive(SMA, [array,int,int], float)
 
-pset.renameArguments(ARG0="x")
+pset.addPrimitive(IF2, [float,float,float, float], float)
+# pset.addPrimitive(IF, [bool,float, float], float)
+# pset.addPrimitive(gt, [float, float], bool)
+
+
+# pset.renameArguments(ARG0="x")
 # pset.renameArguments(ARG1="y")
 
 # pset.addPrimitive(operator.xor, [bool, bool], bool)
@@ -184,7 +207,7 @@ toolbox.register("individual", tools.initIterate, creator.Individual,toolbox.exp
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 toolbox.register("compile", gp.compile, pset=pset)
 
-toolbox.register("evaluate", fitness_predictor, arg=array(error(price)), n=10)
+toolbox.register("evaluate", fitness_predictor, arg=errors, n=10)
 
 toolbox.register("select", tools.selTournament, tournsize=3)
 toolbox.register("mate", gp.cxOnePointLeafBiased,termpb=0.2)
@@ -210,9 +233,9 @@ elif parallel==2:
 	toolbox.register("map", pool.map) #PARALLELIZATION
 
 def main():
-	pop = toolbox.population(n=1000)
+	pop = toolbox.population(n=200)
 	hof = tools.HallOfFame(1)
-	pop, log = algorithms.eaSimple(pop, toolbox, 0.5, 0.1, 200, stats=mstats,
+	pop, log = algorithms.eaSimple(pop, toolbox, 0.5, 0.3, 200, stats=mstats,
 	                                   halloffame=hof, verbose=True)
                                        #print(arr,SMA(arr,4,2))
 	print(hof[0])
