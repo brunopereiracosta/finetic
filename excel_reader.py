@@ -1,3 +1,5 @@
+from MyFuncs import *
+
 import pandas as pd
 file_id = '1atn_R-iKdet3cxx5WCuNavwdHq82qgqG'
 link = 'https://drive.google.com/uc?export=download&id={FILE_ID}'
@@ -15,6 +17,12 @@ sheet1 = xls.parse(0)
 #The default is to simply return the first sheet (ie, sheet_name=0).
 #If None is specified, all sheets are returned, as a {sheet_name:dataframe} dictionary.
 
-#print(sheet_map)
+# print(sheet_map)
 print(sheet1)
 print(sheet_names)
+
+
+price, years, weekdays = read_sheet(sheet1)
+print(price)
+print(years)
+print(weekdays)

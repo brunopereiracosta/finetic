@@ -83,9 +83,9 @@ def generate_edit(pset, min_, max_, condition, type_=None):
 #ADDED
     def emit_fail(IndexError,type_):
         _, _, traceback = sys.exc_info()
-        raise IndexError, "The gp.generate function tried to add "\
+        raise IndexError("The gp.generate function tried to add "\
                           "a terminal of type '%s', but there is "\
-                          "none available." % (type_,), traceback
+                          "none available." % (type_,), traceback)
 
 #CHANGED
     while len(stack) != 0:
