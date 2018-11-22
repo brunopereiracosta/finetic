@@ -236,35 +236,16 @@ def run(cxpb,mutpb,n,tour,termpb,pop=20,ngen=1):
     #print(hof_aux.append(hof[0]))
 	return hof[0].fitness.values[0]
 
-def average_fitness(vec,errors=errors,pop=20,N=1):
-    if len(vec)==5:
-        if (vec[0]<0 or vec[0]>1 or vec[1]<0 or vec[1]>1 or vec[2]<1 or vec[2]>len(errors) or vec[3]<1 or vec[3]>pop or vec[4]<0 or vec[4]>1):
-            return 10**10,
-        else:
-            return sum([run(cxpb=vec[0],mutpb=vec[1],n=int(round(vec[2])),tour=int(round(vec[3])),termpb=vec[4]) for i in range(0,N)])/N,
-    elif len(vec)==4:
-        if (vec[0]<0 or vec[0]>1 or vec[1]<0 or vec[1]>1 or vec[2]<1 or vec[2]>len(errors) or vec[3]<1 or vec[3]>pop):
-            return 10**10,
-        else:
-            return sum([run(cxpb=vec[0],mutpb=vec[1],n=int(round(vec[2])),tour=int(round(vec[3])),termpb=0.2) for i in range(0,N)])/N,
-    elif len(vec)==3:
-        if (vec[0]<0 or vec[0]>1 or vec[1]<0 or vec[1]>1 or vec[2]<1 or vec[2]>len(errors)):
-            return 10**10,
-        else:
-            return sum([run(cxpb=vec[0],mutpb=vec[1],n=int(round(vec[2])),tour=3,termpb=0.2) for i in range(0,N)])/N,
-    elif len(vec)==2:
-        if (vec[0]<0 or vec[0]>1 or vec[1]<0 or vec[1]>1):
-            return 10**10,
-        else:
-            return sum([run(cxpb=vec[0],mutpb=vec[1],n=10,tour=3,termpb=0.2) for i in range(0,N)])/N,
-    elif len(vec)==1:
-        if (vec[0]<0 or vec[0]>1):
-            return 10**10,
-        else:
-            return sum([run(cxpb=vec[0],mutpb=0.15,n=10,tour=3,termpb=0.2) for i in range(0,N)])/N,
-    else:
-        print('Deu merda'),
+def average_fitness(vec,pop=20,ngen=2,N=1):
+    new = [0.5,0.15,10,3,0.2]
+    if len(vec)>5:
+        raise "FIZESTE PORCARIA"
+    for i in range(0,len(vec)):
+        new[i]=vec[i]
 
+    if (new[0]<0 or new[0]>1 or new[1]<0 or new[1]>1 or new[2]<1 or new[2]>len(errors) or new[3]<1 or new[3]>pop or new[4]<0 or new[4]>1):
+        return 10**10,
+    return sum([run(cxpb=new[0],mutpb=new[1],n=int(round(new[2])),tour=int(round(new[3])),termpb=new[4],pop=pop,ngen=ngen) for i in range(0,N)])/N,
 
 #def main():
 #    repeat = 3

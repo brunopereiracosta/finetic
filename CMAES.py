@@ -23,12 +23,12 @@ toolbox1.register("evaluate", average_fitness)
 
 def main():
     # The cma module uses the numpy random number generator
-    numpy.random.seed(128)
+    numpy.random.seed()
     
     # The CMA-ES algorithm takes a population of one individual as argument
     # The centroid is set to a vector of 5.0 see http://www.lri.fr/~hansen/cmaes_inmatlab.html
     # for more details about the rastrigin and other tests for CMA-ES
-    strategy = cma.Strategy(centroid=[0.5]*N, sigma=1., lambda_=69*N)
+    strategy = cma.Strategy(centroid=[0.5]*N, sigma=0.1, lambda_=10*N)
     toolbox1.register("generate", strategy.generate, creator.Individual1)
     toolbox1.register("update", strategy.update)
     
@@ -41,7 +41,7 @@ def main():
     #logger = tools.EvolutionLogger(stats.functions.keys())
     
     # The CMA-ES algorithm converge with good probability with those settings
-    algorithms.eaGenerateUpdate(toolbox1, ngen=1, stats=stats, halloffame=hof)
+    algorithms.eaGenerateUpdate(toolbox1, ngen=2, stats=stats, halloffame=hof)
     
     # print "Best individual is %s, %s" % (hof[0], hof[0].fitness.values)
     print(hof[0])
