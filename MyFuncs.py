@@ -10,6 +10,9 @@ def date_to_yearday(sheet):
 def read_sheet(sheet):
 	return sheet['Last Price'].tolist(), date_to_yearday(sheet), date_to_weekday(sheet)
 
+def error(arr):
+    return [(arr[i]-arr[i-1])/arr[i-1] for i in range(1,len(arr))]
+
 # # bruno testing
 # import pandas as pd
 # import time

@@ -15,7 +15,6 @@ from deap import tools
 from deap import gp
 
 epsilon = 1e-20
-
 parallel = 2 #(0-None, 1-SCOOP, 2-Multi)
 
 import pandas as pd
@@ -29,12 +28,6 @@ elapsed = end - start
 print(elapsed)
 EURUSD = xls.parse(0)
 price, years, weekdays = read_sheet(EURUSD)
-
-
-# USDEUR = xls.parse(xls.sheet_names.index('EURUSD BGN'))
-
-def error(arr):
-    return [(arr[i]-arr[i-1])/arr[i-1] for i in range(1,len(arr))]
 
 def pow2(input):
     return pow(input,2)
@@ -163,12 +156,10 @@ pset.addPrimitive(protectedDiv, [float, float], float)
 # pset.addPrimitive(math.exp, [float], float)
 # pset.addPrimitive(idem, [A], A)
 # pset.addPrimitive(idem, [int], int)
-# pset.addPrimitive(SMA, [array,int,int], float)
 
 pset.addPrimitive(IF2, [float,float,float, float], float)
 # pset.addPrimitive(IF, [bool,float, float], float)
 # pset.addPrimitive(gt, [float, float], bool)
-
 
 # pset.renameArguments(ARG0="x")
 # pset.renameArguments(ARG1="y")
@@ -176,7 +167,7 @@ pset.addPrimitive(IF2, [float,float,float, float], float)
 # pset.addPrimitive(operator.xor, [bool, bool], bool)
 # pset.addPrimitive(if_then_else, [bool, float, float], float)
 # pset.addTerminal(3.0, float)
-pset.addTerminal(1, int)
+# pset.addTerminal(1, int)
 
 creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
 creator.create("Individual", gp.PrimitiveTree, fitness=creator.FitnessMin,
@@ -207,13 +198,8 @@ toolbox.register("individual", tools.initIterate, creator.Individual,toolbox.exp
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 toolbox.register("compile", gp.compile, pset=pset)
 
-toolbox.register("evaluate", fitness_predictor, arg=errors, n=10)
-
-toolbox.register("select", tools.selTournament, tournsize=3)
-toolbox.register("mate", gp.cxOnePointLeafBiased,termpb=0.2)
 toolbox.register("expr_mut", genGrow_edit, min_=0, max_=5)
 toolbox.register("mutate", gp.mutUniform, expr=toolbox.expr_mut, pset=pset)
-toolbox.decorate("mate", gp.staticLimit(key=operator.attrgetter("height"), max_value=17))
 toolbox.decorate("mutate", gp.staticLimit(key=operator.attrgetter("height"), max_value=17))
 
 stats_fit = tools.Statistics(lambda ind: ind.fitness.values)
@@ -233,20 +219,29 @@ elif parallel==2:
 	toolbox.register("map", pool.map) #PARALLELIZATION
 
 
-def run(i,N,pop,cxpb,mutpb,ngen):
-    pop = toolbox.population(n=pop)
-    hof = tools.HallOfFame(1)
+def run(cxpb=0.5,mutpb=0.1,n=10,tour=3,termpb=0.2,pop=10,ngen=10):
+
+	toolbox.register("evaluate", fitness_predictor, arg=errors, n=n)
+	toolbox.register("select", tools.selTournament, tournsize=tour)
+	toolbox.register("mate", gp.cxOnePointLeafBiased,termpb=termpb)
+	toolbox.decorate("mate", gp.staticLimit(key=operator.attrgetter("height"), max_value=17))
+
+	pop = toolbox.population(n=pop)
+	hof = tools.HallOfFame(1)
     #hof_aux.append(hof)
-    pop, log = algorithms.eaSimple(pop, toolbox, cxpb, mutpb, ngen, stats=mstats, halloffame=hof, verbose=True)
+	pop, log = algorithms.eaSimple(pop, toolbox, cxpb, mutpb, ngen, stats=mstats, halloffame=hof, verbose=True)
     #print(arr,SMA(arr,4,2))
     #print(hof[0])
     #print(type(hof[0]))
     #print(hof_aux.append(hof[0]))
-    return hof[0]
+	return fitness_predictor(hof[0],errors,n)[0]
 
+def average_fitness(N):
+    return sum([run(cxpb=0.5,mutpb=0.1,n=10,tour=3) for i in range(0,N)])/N
 
-def main(N):
-    return [run(i,N=2,pop=10,cxpb=0.5,mutpb=15,ngen=10) for i in range(0,N)]
+def main():
+	repeat = 3
+	print(average_fitness(repeat))
 
 if __name__ == '__main__':
-	main(3)
+	main()
