@@ -234,7 +234,7 @@ def run(cxpb=0.5,mutpb=0.1,n=10,tour=3,termpb=0.2,pop=10,ngen=10):
     #print(hof[0])
     #print(type(hof[0]))
     #print(hof_aux.append(hof[0]))
-	return fitness_predictor(hof[0],errors,n)[0]
+	return hof[0].fitness.values[0]
 
 def average_fitness(N):
     return sum([run(cxpb=0.5,mutpb=0.1,n=10,tour=3) for i in range(0,N)])/N
