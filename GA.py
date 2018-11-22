@@ -232,14 +232,21 @@ elif parallel==2:
 	pool = multiprocessing.Pool() 
 	toolbox.register("map", pool.map) #PARALLELIZATION
 
-def main():
-	pop = toolbox.population(n=200)
-	hof = tools.HallOfFame(1)
-	pop, log = algorithms.eaSimple(pop, toolbox, 0.5, 0.3, 200, stats=mstats,
-	                                   halloffame=hof, verbose=True)
-                                       #print(arr,SMA(arr,4,2))
-	print(hof[0])
 
+def run(i,N,pop,cxpb,mutpb,ngen):
+    pop = toolbox.population(n=pop)
+    hof = tools.HallOfFame(1)
+    #hof_aux.append(hof)
+    pop, log = algorithms.eaSimple(pop, toolbox, cxpb, mutpb, ngen, stats=mstats, halloffame=hof, verbose=True)
+    #print(arr,SMA(arr,4,2))
+    #print(hof[0])
+    #print(type(hof[0]))
+    #print(hof_aux.append(hof[0]))
+    return hof[0]
+
+
+def main(N):
+    return [run(i,N=2,pop=10,cxpb=0.5,mutpb=15,ngen=10) for i in range(0,N)]
 
 if __name__ == '__main__':
-	main()
+	main(3)
