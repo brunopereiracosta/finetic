@@ -21,7 +21,7 @@ creator.create("Individual1", list, fitness=creator.FitnessMin1)
 toolbox1 = base.Toolbox()
 toolbox1.register("evaluate", average_fitness)
 
-def main():
+def mycmaes():
     # The cma module uses the numpy random number generator
     numpy.random.seed()
     
@@ -44,8 +44,17 @@ def main():
     algorithms.eaGenerateUpdate(toolbox1, ngen=2, stats=stats, halloffame=hof)
     
     # print "Best individual is %s, %s" % (hof[0], hof[0].fitness.values)
-    print(hof[0])
-    return hof[0].fitness.values[0]
+    # print(hof[0])
+    # return hof[0].fitness.values[0]
+    print(hof[0].fitness.values[0])
+    return hof[0]
+
+def main():
+    repeat = 2
+    arr = numpy.array([mycmaes() for i in range(0,repeat)])
+    print(arr)
+    print(numpy.mean(arr))
+    print(numpy.std(arr))
 
 if __name__ == "__main__":
     main()

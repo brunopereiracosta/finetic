@@ -219,7 +219,7 @@ elif parallel==2:
 	toolbox.register("map", pool.map) #PARALLELIZATION
 
 
-def run(cxpb,mutpb,n,tour,termpb,pop=20,ngen=1):
+def run(cxpb,mutpb,n,tour,termpb,pop,ngen):
 
 	toolbox.register("evaluate", fitness_predictor, arg=errors, n=n)
 	toolbox.register("select", tools.selTournament, tournsize=tour)
