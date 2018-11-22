@@ -219,7 +219,7 @@ elif parallel==2:
 	toolbox.register("map", pool.map) #PARALLELIZATION
 
 
-def run(cxpb=0.5,mutpb=0.1,n=10,tour=3,termpb=0.2,pop=10,ngen=10):
+def run(cxpb,mutpb,n,tour,termpb,pop=20,ngen=1):
 
 	toolbox.register("evaluate", fitness_predictor, arg=errors, n=n)
 	toolbox.register("select", tools.selTournament, tournsize=tour)
@@ -236,12 +236,39 @@ def run(cxpb=0.5,mutpb=0.1,n=10,tour=3,termpb=0.2,pop=10,ngen=10):
     #print(hof_aux.append(hof[0]))
 	return hof[0].fitness.values[0]
 
-def average_fitness(N):
-    return sum([run(cxpb=0.5,mutpb=0.1,n=10,tour=3) for i in range(0,N)])/N
+def average_fitness(vec,errors=errors,pop=20,N=1):
+    if len(vec)==5:
+        if (vec[0]<0 or vec[0]>1 or vec[1]<0 or vec[1]>1 or vec[2]<1 or vec[2]>len(errors) or vec[3]<1 or vec[3]>pop or vec[4]<0 or vec[4]>1):
+            return 10**10,
+        else:
+            return sum([run(cxpb=vec[0],mutpb=vec[1],n=int(round(vec[2])),tour=int(round(vec[3])),termpb=vec[4]) for i in range(0,N)])/N,
+    elif len(vec)==4:
+        if (vec[0]<0 or vec[0]>1 or vec[1]<0 or vec[1]>1 or vec[2]<1 or vec[2]>len(errors) or vec[3]<1 or vec[3]>pop):
+            return 10**10,
+        else:
+            return sum([run(cxpb=vec[0],mutpb=vec[1],n=int(round(vec[2])),tour=int(round(vec[3])),termpb=0.2) for i in range(0,N)])/N,
+    elif len(vec)==3:
+        if (vec[0]<0 or vec[0]>1 or vec[1]<0 or vec[1]>1 or vec[2]<1 or vec[2]>len(errors)):
+            return 10**10,
+        else:
+            return sum([run(cxpb=vec[0],mutpb=vec[1],n=int(round(vec[2])),tour=3,termpb=0.2) for i in range(0,N)])/N,
+    elif len(vec)==2:
+        if (vec[0]<0 or vec[0]>1 or vec[1]<0 or vec[1]>1):
+            return 10**10,
+        else:
+            return sum([run(cxpb=vec[0],mutpb=vec[1],n=10,tour=3,termpb=0.2) for i in range(0,N)])/N,
+    elif len(vec)==1:
+        if (vec[0]<0 or vec[0]>1):
+            return 10**10,
+        else:
+            return sum([run(cxpb=vec[0],mutpb=0.15,n=10,tour=3,termpb=0.2) for i in range(0,N)])/N,
+    else:
+        print('Deu merda'),
 
-def main():
-	repeat = 3
-	print(average_fitness(repeat))
 
-if __name__ == '__main__':
-	main()
+#def main():
+#    repeat = 3
+#    print(average_fitness(repeat))
+#
+#if __name__ == '__main__':
+#    main()
