@@ -19,6 +19,7 @@ parallel = 2 #(0-None, 1-SCOOP, 2-Multi)
 
 import pandas as pd
 import time
+
 # clock
 start = time.time()
 # xls = pd.ExcelFile('./SECRET ADMIRER.xlsx')
@@ -28,6 +29,7 @@ elapsed = end - start
 print(elapsed)
 EURUSD = xls.parse(0)
 price, years, weekdays = read_sheet(EURUSD)
+
 
 def pow2(input):
     return pow(input,2)
@@ -66,16 +68,6 @@ def IF2(arg1,arg2,out1,out2):
     if arg1>arg2:
         return out1
     return out2
-
-def IF(argB,out1,out2):
-    if argB:
-        return out1
-    return out2
-
-def gt(arg1,arg2):
-    if arg1>arg2:
-        return True
-    return False
 
 #window and ind SHOULD BE POSTITIVE
 def SMA(arr,window,ind):
@@ -121,57 +113,8 @@ class array:
         	return out
         return self.v[self.protect(key)]
 
-
-# N=1000
-# n=10
-# vec=[0]*N
-# for i in range(1,N):
-#     vec[i]=math.sin(i/5.)
-#     # vec[i]=random.uniform(-1,1)
-#     # vec[i]=-i
-# arr=array(vec)
-
-n=10
 errors=array(error(price))
-
-pset = gp.PrimitiveSetTyped("main", [array], float)
-pset.addPrimitive(SMA, [array, int, int], float)
-pset.addPrimitive(operator.add, [float, float], float)
-pset.addPrimitive(part, [array,int], float)
-pset.addPrimitive(shift, [array,int], float)
-pset.addEphemeralConstant("randI", lambda: random.randint(0,n-1),int)
-pset.addEphemeralConstant("randF", lambda: random.uniform(-1,1),float)
-pset.addPrimitive(operator.sub, [float, float], float)
-pset.addPrimitive(operator.mul, [float, float], float)
-pset.addPrimitive(protectedDiv, [float, float], float)
-# pset.addPrimitive(operator.pow, [float, float], float)
-# pset.addPrimitive(pow2, [float], float)
-# pset.addPrimitive(math.sqrt, [float], float)
-# pset.addPrimitive(operator.abs, [float], float)
-# pset.addPrimitive(math.cos, [float], float)
-# pset.addPrimitive(math.sin, [float], float)
-# pset.addPrimitive(math.tan, [float], float)
-# pset.addPrimitive(math.atan, [float], float)
-# pset.addPrimitive(math.log1p, [float], float)
-# pset.addPrimitive(math.exp, [float], float)
-# pset.addPrimitive(idem, [A], A)
-# pset.addPrimitive(idem, [int], int)
-
-pset.addPrimitive(IF2, [float,float,float, float], float)
-# pset.addPrimitive(IF, [bool,float, float], float)
-# pset.addPrimitive(gt, [float, float], bool)
-
-# pset.renameArguments(ARG0="x")
-# pset.renameArguments(ARG1="y")
-
-# pset.addPrimitive(operator.xor, [bool, bool], bool)
-# pset.addPrimitive(if_then_else, [bool, float, float], float)
-# pset.addTerminal(3.0, float)
-# pset.addTerminal(1, int)
-
-creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
-creator.create("Individual", gp.PrimitiveTree, fitness=creator.FitnessMin,
-               pset=pset)
+L = len(errors)
 
 def fitness_predictor(individual,arg,n):
 	func = toolbox.compile(expr=individual)
@@ -180,72 +123,66 @@ def fitness_predictor(individual,arg,n):
 		if ((func(arg[i-n:i])>0)==(arg[i]>0)):
 			fit += -1
 	return fit/(len(arg)-n)*100,
-#
-# def myfit(ind,arg):
-# 	# Transform the tree expression in a callable function
-# 	func = toolbox.compile(expr=ind)
-# 	out = (func(arg)-SMA(arg,4,2))**2
-# 	# out = (func(arg)-arg[4])**2
-# 	for i in range(1,500):
-# 		for j in range(1,500):
-# 			i
-# 	return out,
-#
 
 toolbox = base.Toolbox()
-toolbox.register("expr", genGrow_edit, pset=pset, min_=1, max_=15)
-toolbox.register("individual", tools.initIterate, creator.Individual,toolbox.expr)
-toolbox.register("population", tools.initRepeat, list, toolbox.individual)
-toolbox.register("compile", gp.compile, pset=pset)
 
-toolbox.register("expr_mut", genGrow_edit, min_=0, max_=5)
-toolbox.register("mutate", gp.mutUniform, expr=toolbox.expr_mut, pset=pset)
-toolbox.decorate("mutate", gp.staticLimit(key=operator.attrgetter("height"), max_value=17))
-
-stats_fit = tools.Statistics(lambda ind: ind.fitness.values)
-stats_size = tools.Statistics(len)
-mstats = tools.MultiStatistics(fitness=stats_fit, size=stats_size)
-mstats.register("avg", numpy.mean)
-mstats.register("std", numpy.std)
-mstats.register("min", numpy.min)
-mstats.register("max", numpy.max)
-
-if parallel==1:
-	from scoop import futures
-	toolbox.register("map", futures.map) #PARALLELIZATION
-elif parallel==2:
-	import multiprocessing
-	pool = multiprocessing.Pool() 
-	toolbox.register("map", pool.map) #PARALLELIZATION
-
-
+run_i=0 #variable so that EphemeralConstants can have different names on each execution of run()
 def run(cxpb,mutpb,n,tour,termpb,pop,ngen):
+    global run_i
 
-	toolbox.register("evaluate", fitness_predictor, arg=errors, n=n)
-	toolbox.register("select", tools.selTournament, tournsize=tour)
-	toolbox.register("mate", gp.cxOnePointLeafBiased,termpb=termpb)
-	toolbox.decorate("mate", gp.staticLimit(key=operator.attrgetter("height"), max_value=17))
+    pset = gp.PrimitiveSetTyped("main", [array], float)
+    pset.addPrimitive(SMA, [array, int, int], float)
+    pset.addPrimitive(operator.add, [float, float], float)
+    pset.addPrimitive(part, [array,int], float)
+    pset.addPrimitive(shift, [array,int], float)
+    pset.addEphemeralConstant("randI{i}".format(i=run_i), lambda: random.randint(0,n-1),int)
+    pset.addEphemeralConstant("randF{i}".format(i=run_i), lambda: random.uniform(-1,1),float)
+    pset.addPrimitive(operator.sub, [float, float], float)
+    pset.addPrimitive(operator.mul, [float, float], float)
+    pset.addPrimitive(protectedDiv, [float, float], float)
+    pset.addPrimitive(IF2, [float,float,float, float], float)
+    run_i+=1
 
-	pop = toolbox.population(n=pop)
-	hof = tools.HallOfFame(1)
-    #hof_aux.append(hof)
-	pop, log = algorithms.eaSimple(pop, toolbox, cxpb, mutpb, ngen, stats=mstats, halloffame=hof, verbose=True)
-    #print(arr,SMA(arr,4,2))
-    #print(hof[0])
-    #print(type(hof[0]))
-    #print(hof_aux.append(hof[0]))
-	return hof[0].fitness.values[0]
+    creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
+    creator.create("Individual", gp.PrimitiveTree, fitness=creator.FitnessMin,pset=pset)
 
-def average_fitness(vec,pop=20,ngen=2,N=1):
-    new = [0.5,0.15,10,3,0.2]
-    if len(vec)>5:
-        raise "FIZESTE PORCARIA"
-    for i in range(0,len(vec)):
-        new[i]=vec[i]
+    toolbox.register("expr", genGrow_edit, pset=pset, min_=1, max_=15)
+    toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.expr)
+    toolbox.register("population", tools.initRepeat, list, toolbox.individual)
+    toolbox.register("compile", gp.compile, pset=pset)
+    
+    toolbox.register("evaluate", fitness_predictor, arg=errors, n=n)
+    
+    toolbox.register("select", tools.selTournament, tournsize=tour)
+    toolbox.register("mate", gp.cxOnePointLeafBiased,termpb=termpb)
+    toolbox.register("expr_mut", genGrow_edit, min_=0, max_=5)
+    toolbox.register("mutate", gp.mutUniform, expr=toolbox.expr_mut, pset=pset)
+    toolbox.decorate("mate", gp.staticLimit(key=operator.attrgetter("height"), max_value=17))
+    toolbox.decorate("mutate", gp.staticLimit(key=operator.attrgetter("height"), max_value=17))
 
-    if (new[0]<0 or new[0]>1 or new[1]<0 or new[1]>1 or new[2]<1 or new[2]>len(errors) or new[3]<1 or new[3]>pop or new[4]<0 or new[4]>1):
-        return 10**10,
-    return sum([run(cxpb=new[0],mutpb=new[1],n=int(round(new[2])),tour=int(round(new[3])),termpb=new[4],pop=pop,ngen=ngen) for i in range(0,N)])/N,
+
+    stats_fit = tools.Statistics(lambda ind: ind.fitness.values)
+    stats_size = tools.Statistics(len)
+    mstats = tools.MultiStatistics(fitness=stats_fit, size=stats_size)
+    mstats.register("avg", numpy.mean)
+    mstats.register("std", numpy.std)
+    mstats.register("min", numpy.min)
+    mstats.register("max", numpy.max)
+
+    if parallel==1:
+        from scoop import futures
+        toolbox.register("map", futures.map) #PARALLELIZATION
+    elif parallel==2:
+        import multiprocessing
+        pool = multiprocessing.Pool() 
+        toolbox.register("map", pool.map) #PARALLELIZATION
+
+    pop = toolbox.population(n=pop)
+    hof = tools.HallOfFame(1)
+    pop, log = algorithms.eaSimple(pop, toolbox, cxpb, mutpb, ngen, stats=mstats, halloffame=hof, verbose=True)
+
+    return hof[0].fitness.values[0]
+
 
 #def main():
 #    repeat = 3

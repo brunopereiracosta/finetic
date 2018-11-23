@@ -4,22 +4,51 @@ from GA import *
 from deap import benchmarks
 from deap import cma
 
-def myfunc(vec):
-    a=0.
+
+####################################################################
+# Problem parametes
+D           = 5     #dimensions
+
+pop_GA      = 10    #population size in GA
+pop_CMAES   = 10    #population size in CMA-ES
+
+ngen_GA     = 2     #number of generations in GA
+ngen_CMAES  = 2     #number of generations in CMA-ES
+
+reps_GA     = 2     #repetitions of GA
+reps_CMAES  = 2     #repetitions of CMA-ES
+
+sigma       = 0.2   #sigma for CMA-ES
+
+cxpb_def    = 0.5
+mutpb_def   = 0.15
+n_def       = 10./L
+tour_def    = 3./pop_GA
+termpb_def  = 0.2
+####################################################################
+
+vec_def     = [cxpb_def,mutpb_def,n_def,tour_def,termpb_def]
+
+#moved it to here because it must be defined after 'vec_def'
+def average_fitness(vec,pop,ngen,reps):
+    new = vec_def[:]
+    if len(vec)>5:
+        raise "FIZESTE PORCARIA"
     for i in range(0,len(vec)):
-        a = a + (vec[i]-(i+1))**2.
-    return a,
+        new[i]=vec[i]
+
+    if (new[0]<0 or new[0]>1 or new[1]<0 or new[1]>1 or new[2]<0 or new[2]>1 or new[3]<0 or new[3]>1 or new[4]<0 or new[4]>1):
+        print("OUT OF DOMAIN, maybe sigma is too big")
+        return 10**10,
+    return sum([run(cxpb=new[0],mutpb=new[1],n=int(round(new[2]*(L-1)+1)),tour=int(round(new[3]*(pop-1)+1)),termpb=new[4],pop=pop,ngen=ngen) for i in range(0,reps)])/reps,
 
 
-
-# Problem size
-N=1
 
 creator.create("FitnessMin1", base.Fitness, weights=(-1.0,))
 creator.create("Individual1", list, fitness=creator.FitnessMin1)
 
 toolbox1 = base.Toolbox()
-toolbox1.register("evaluate", average_fitness)
+toolbox1.register("evaluate", average_fitness, pop=pop_GA, ngen=ngen_GA, reps=reps_GA)
 
 def mycmaes():
     # The cma module uses the numpy random number generator
@@ -28,7 +57,7 @@ def mycmaes():
     # The CMA-ES algorithm takes a population of one individual as argument
     # The centroid is set to a vector of 5.0 see http://www.lri.fr/~hansen/cmaes_inmatlab.html
     # for more details about the rastrigin and other tests for CMA-ES
-    strategy = cma.Strategy(centroid=[0.5]*N, sigma=0.1, lambda_=10*N)
+    strategy = cma.Strategy(centroid=vec_def[0:D], sigma=sigma, lambda_=pop_CMAES)
     toolbox1.register("generate", strategy.generate, creator.Individual1)
     toolbox1.register("update", strategy.update)
     
@@ -41,7 +70,7 @@ def mycmaes():
     #logger = tools.EvolutionLogger(stats.functions.keys())
     
     # The CMA-ES algorithm converge with good probability with those settings
-    algorithms.eaGenerateUpdate(toolbox1, ngen=2, stats=stats, halloffame=hof)
+    algorithms.eaGenerateUpdate(toolbox1, ngen=ngen_CMAES, stats=stats, halloffame=hof)
     
     # print "Best individual is %s, %s" % (hof[0], hof[0].fitness.values)
     # print(hof[0])
@@ -50,11 +79,18 @@ def mycmaes():
     return hof[0]
 
 def main():
-    repeat = 2
-    arr = numpy.array([mycmaes() for i in range(0,repeat)])
-    print(arr)
-    print(numpy.mean(arr))
-    print(numpy.std(arr))
+    arr = numpy.array([mycmaes() for i in range(0,reps_CMAES)]).transpose()
+
+    #re-adjust 'n' and 'tour'
+    vec_def[2]*=L
+    vec_def[3]*=pop_GA
+    arr[2]*=L
+    arr[3]*=pop_GA
+
+    print("START",vec_def)
+    print("FINAL",arr)
+    print("MEAN",[numpy.mean(arr[i]) for i in range(0,len(arr))])
+    print("STD",[numpy.std(arr[i]) for i in range(0,len(arr))])
 
 if __name__ == "__main__":
     main()
