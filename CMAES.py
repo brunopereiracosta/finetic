@@ -12,11 +12,11 @@ D           = 5     #dimensions
 pop_GA      = 10    #population size in GA
 pop_CMAES   = 10    #population size in CMA-ES
 
-ngen_GA     = 2     #number of generations in GA
-ngen_CMAES  = 2     #number of generations in CMA-ES
+ngen_GA     = 3     #number of generations in GA
+ngen_CMAES  = 3     #number of generations in CMA-ES
 
-reps_GA     = 2     #repetitions of GA
-reps_CMAES  = 2     #repetitions of CMA-ES
+reps_GA     = 3     #repetitions of GA
+reps_CMAES  = 3     #repetitions of CMA-ES
 
 sigma       = 0.2   #sigma for CMA-ES
 

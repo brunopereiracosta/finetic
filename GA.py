@@ -122,7 +122,8 @@ def fitness_predictor(individual,arg,n):
 	for i in range(n,len(arg)):
 		if ((func(arg[i-n:i])>0)==(arg[i]>0)):
 			fit += -1
-	return fit/(len(arg)-n)*100,
+    # return fit/(len(arg)-n)*100,
+	return fit*fit/(len(arg)-n),
 
 toolbox = base.Toolbox()
 
@@ -174,12 +175,12 @@ def run(cxpb,mutpb,n,tour,termpb,pop,ngen):
         toolbox.register("map", futures.map) #PARALLELIZATION
     elif parallel==2:
         import multiprocessing
-        pool = multiprocessing.Pool() 
+        pool = multiprocessing.Pool(6) 
         toolbox.register("map", pool.map) #PARALLELIZATION
 
     pop = toolbox.population(n=pop)
     hof = tools.HallOfFame(1)
-    pop, log = algorithms.eaSimple(pop, toolbox, cxpb, mutpb, ngen, stats=mstats, halloffame=hof, verbose=True)
+    pop, log = algorithms.eaSimple(pop, toolbox, cxpb, mutpb, ngen, stats=mstats, halloffame=hof, verbose=False)
 
     return hof[0].fitness.values[0]
 
