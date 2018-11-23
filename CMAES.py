@@ -9,22 +9,24 @@ from deap import cma
 # Problem parametes
 D           = 5     #dimensions
 
-pop_GA      = 10    #population size in GA
+pop_GA      = 20    #population size in GA
 pop_CMAES   = 10    #population size in CMA-ES
 
-ngen_GA     = 3     #number of generations in GA
-ngen_CMAES  = 3     #number of generations in CMA-ES
+ngen_GA     = 30     #number of generations in GA
+ngen_CMAES  = 6     #number of generations in CMA-ES
 
-reps_GA     = 3     #repetitions of GA
-reps_CMAES  = 3     #repetitions of CMA-ES
+reps_GA     = 4     #repetitions of GA
+reps_CMAES  = 4     #repetitions of CMA-ES
 
-sigma       = 0.2   #sigma for CMA-ES
+sigma       = 0.25   #sigma for CMA-ES
 
 cxpb_def    = 0.5
-mutpb_def   = 0.15
-n_def       = 10./L
-tour_def    = 3./pop_GA
-termpb_def  = 0.2
+mutpb_def   = 0.5
+#n_def       = 5000./L
+n_def       = 0.5
+#tour_def    = 3./pop_GA
+tour_def    = 0.5
+termpb_def  = 0.5
 ####################################################################
 
 vec_def     = [cxpb_def,mutpb_def,n_def,tour_def,termpb_def]
@@ -79,8 +81,11 @@ def mycmaes():
     return hof[0]
 
 def main():
+    start = time.time()
     arr = numpy.array([mycmaes() for i in range(0,reps_CMAES)]).transpose()
-
+    end = time.time()
+    elapsed = end - start
+    print(elapsed)
     #re-adjust 'n' and 'tour'
     vec_def[2]*=L
     vec_def[3]*=pop_GA

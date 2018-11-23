@@ -123,7 +123,7 @@ def fitness_predictor(individual,arg,n):
 		if ((func(arg[i-n:i])>0)==(arg[i]>0)):
 			fit += -1
     # return fit/(len(arg)-n)*100,
-	return fit*fit/(len(arg)-n),
+	return fit,
 
 toolbox = base.Toolbox()
 
