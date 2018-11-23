@@ -40,7 +40,7 @@ def average_fitness(vec,pop,ngen,reps):
         new[i]=vec[i]
 
     if (new[0]<0 or new[0]>1 or new[1]<0 or new[1]>1 or new[2]<0 or new[2]>1 or new[3]<0 or new[3]>1 or new[4]<0 or new[4]>1):
-        print("OUT OF DOMAIN, maybe sigma is too big")
+        # print("OUT OF DOMAIN, maybe sigma is too big")
         return 10**10,
     return sum([run(cxpb=new[0],mutpb=new[1],n=int(round(new[2]*(L-1)+1)),tour=int(round(new[3]*(pop-1)+1)),termpb=new[4],pop=pop,ngen=ngen) for i in range(0,reps)])/reps,
 
@@ -52,7 +52,12 @@ creator.create("Individual1", list, fitness=creator.FitnessMin1)
 toolbox1 = base.Toolbox()
 toolbox1.register("evaluate", average_fitness, pop=pop_GA, ngen=ngen_GA, reps=reps_GA)
 
+count = 1
 def mycmaes():
+    global count
+    print("CMA-ES REPETITION",count)
+    count+=1
+
     # The cma module uses the numpy random number generator
     numpy.random.seed()
     
