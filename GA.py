@@ -175,7 +175,7 @@ def run(cxpb,mutpb,n,tour,termpb,pop,ngen):
         toolbox.register("map", futures.map) #PARALLELIZATION
     elif parallel==2:
         import multiprocessing
-        pool = multiprocessing.Pool(6) 
+        pool = multiprocessing.Pool()
         toolbox.register("map", pool.map) #PARALLELIZATION
 
     pop = toolbox.population(n=pop)
