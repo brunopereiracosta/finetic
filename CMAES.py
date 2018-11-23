@@ -9,14 +9,14 @@ from deap import cma
 # Problem parametes
 D           = 5     #dimensions
 
-pop_GA      = 25    #population size in GA
-pop_CMAES   = 10    #population size in CMA-ES
+pop_GA      = 20    #population size in GA
+pop_CMAES   = 5    #population size in CMA-ES
 
 ngen_GA     = 50     #number of generations in GA
-ngen_CMAES  = 6     #number of generations in CMA-ES
+ngen_CMAES  = 3     #number of generations in CMA-ES
 
-reps_GA     = 4     #repetitions of GA
-reps_CMAES  = 4    #repetitions of CMA-ES
+reps_GA     = 1     #repetitions of GA
+reps_CMAES  = 1    #repetitions of CMA-ES
 
 sigma       = 0.25   #sigma for CMA-ES
 
@@ -89,7 +89,11 @@ def mycmaes():
     return hof[0]
 
 def main():
+    start1 = time.time()
     arr = numpy.array([mycmaes() for i in range(0,reps_CMAES)]).transpose()
+    end1 = time.time()
+    elapsed1 = end1 - start1
+    print(elapsed1)
     #re-adjust 'n' and 'tour'
     vec_def[2]*=L
     vec_def[3]*=pop_GA
