@@ -9,19 +9,19 @@ from deap import cma
 # Problem parametes
 D           = 5     #dimensions
 
-pop_GA      = 20    #population size in GA
-pop_CMAES   = 5    #population size in CMA-ES
+pop_GA      = 50    #population size in GA
+pop_CMAES   = 9    #population size in CMA-ES
 
-ngen_GA     = 50     #number of generations in GA
-ngen_CMAES  = 3     #number of generations in CMA-ES
+ngen_GA     = 180     #number of generations in GA
+ngen_CMAES  = 12     #number of generations in CMA-ES
 
-reps_GA     = 1     #repetitions of GA
-reps_CMAES  = 1    #repetitions of CMA-ES
+reps_GA     = 4     #repetitions of GA
+reps_CMAES  = 30    #repetitions of CMA-ES
 
 sigma       = 0.25   #sigma for CMA-ES
 
 cxpb_def    = 0.5
-mutpb_def   = 0.5
+mutpb_def   = 0.4
 #n_def       = 5000./L
 n_def       = 0.5
 #tour_def    = 3./pop_GA
@@ -83,7 +83,7 @@ def mycmaes():
     elapsed = end - start
     print(elapsed)
     # print "Best individual is %s, %s" % (hof[0], hof[0].fitness.values)
-    # print(hof[0])
+    print(hof[0])
     # return hof[0].fitness.values[0]
     print(hof[0].fitness.values[0])
     return hof[0]
