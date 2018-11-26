@@ -42,7 +42,7 @@ def average_fitness(vec,pop,ngen,reps):
     if (new[0]<0 or new[0]>1 or new[1]<0 or new[1]>1 or new[2]<0 or new[2]>1 or new[3]<0 or new[3]>1 or new[4]<0 or new[4]>1):
         # print("OUT OF DOMAIN, maybe sigma is too big")
         return 10**10,
-    return sum([run(cxpb=new[0],mutpb=new[1],n=int(round(new[2]*(L-1)+1)),tour=int(round(new[3]*(pop-1)+1)),termpb=new[4],pop=pop,ngen=ngen) for i in range(0,reps)])/reps,
+    return sum([run(cxpb=new[0],mutpb=new[1],n=int(round(new[2]*(L-1)+1)),tour=int(round(new[3]*(pop-1)+1)),termpb=new[4],popu=pop,ngen=ngen) for i in range(0,reps)])/reps,
 
 
 

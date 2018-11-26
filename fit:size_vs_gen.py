@@ -3,11 +3,11 @@ from MyFuncs import *
 from GA import *
 from CMAES import *
 
-
-run(0.11834723511214429, 0.36282571305589495, 0.002018115516200153*L, 0.12397716233735832, 0.15381049330039887,20,3)
+popu = pop_GA*2
+logbook = run(cxpb=0.11834723511214429, mutpb=0.36282571305589495, n=int(round(0.002018115516200153*L)), tour=int(round(0.12397716233735832*popu)), termpb=0.15381049330039887,popu=popu,ngen=500)
 
 gen = logbook.select("gen")
-fit_mins = logbook.chapters["fitness"].select("min")
+fit_mins = logbook.chapters["fitness"].select("max")
 size_avgs = logbook.chapters["size"].select("avg")
 
 import matplotlib.pyplot as plt
