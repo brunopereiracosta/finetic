@@ -121,14 +121,14 @@ def fitness_predictor(individual,arg,n):
 	fit=0.
 	for i in range(n,len(arg)):
 		if ((func(arg[i-n:i])>0)==(arg[i]>0)):
-			fit += -1
+			fit += 1
     # return fit/(len(arg)-n)*100,
 	return fit,
 
 toolbox = base.Toolbox()
 
 run_i=0 #variable so that EphemeralConstants can have different names on each execution of run()
-def run(cxpb,mutpb,n,tour,termpb,pop,ngen):
+def run(cxpb,mutpb,n,tour,termpb,popu,ngen):
     global run_i
 
     pset = gp.PrimitiveSetTyped("main", [array], float)
@@ -144,8 +144,8 @@ def run(cxpb,mutpb,n,tour,termpb,pop,ngen):
     pset.addPrimitive(IF2, [float,float,float, float], float)
     run_i+=1
 
-    creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
-    creator.create("Individual", gp.PrimitiveTree, fitness=creator.FitnessMin,pset=pset)
+    creator.create("FitnessMax", base.Fitness, weights=(1.0,))
+    creator.create("Individual", gp.PrimitiveTree, fitness=creator.FitnessMax,pset=pset)
 
     toolbox.register("expr", genGrow_edit, pset=pset, min_=1, max_=15)
     toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.expr)
@@ -178,11 +178,12 @@ def run(cxpb,mutpb,n,tour,termpb,pop,ngen):
         pool = multiprocessing.Pool(6)
         toolbox.register("map", pool.map) #PARALLELIZATION
 
-    pop = toolbox.population(n=pop)
+    pop = toolbox.population(n=popu)
     hof = tools.HallOfFame(1)
-    pop, log = algorithms.eaSimple(pop, toolbox, cxpb, mutpb, ngen, stats=mstats, halloffame=hof, verbose=False)
+    pop, log = algorithms.eaSimple(pop, toolbox, cxpb, mutpb, ngen, stats=mstats, halloffame=hof, verbose=True)
 
-    return hof[0].fitness.values[0]
+    # return hof[0].fitness.values[0]
+    return log
 
 
 #def main():
