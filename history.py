@@ -1,24 +1,12 @@
 from gp_edit import *
 from MyFuncs import *
-from GA import *
-from CMAES import *
+from GA_3 import *
+# from CMAES import *
 
 
-history = History()
 
-# Decorate the variation operators
-toolbox.decorate("mate", history.decorator)
-toolbox.decorate("mutate", history.decorator)
-
-run(0.11834723511214429, 0.36282571305589495, 0.002018115516200153*L, 0.12397716233735832, 0.15381049330039887,20,3)
-
-# Create the population and populate the history
-population = toolbox.population(n=20)
-history.update(population)
-
-# Do the evolution, the decorators will take care of updating the
-# history
-# [...]
+popu = 20
+history = run(cxpb=0.11834723511214429, mutpb=0.36282571305589495, n=int(round(0.002018115516200153*L)), tour=int(round(0.12397716233735832*popu)), termpb=0.15381049330039887,popu=popu,ngen=3)
 
 import matplotlib.pyplot as plt
 import networkx

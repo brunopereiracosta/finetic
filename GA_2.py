@@ -117,13 +117,13 @@ errors=array(error(price))
 L = len(errors)
 
 def fitness_predictor(individual,arg,n):
-	func = toolbox.compile(expr=individual)
-	fit=0.
-	for i in range(n,len(arg)):
-		if ((func(arg[i-n:i])>0)==(arg[i]>0)):
-			fit += 1
-    # return fit/(len(arg)-n)*100,
-	return fit,
+    func = toolbox.compile(expr=individual)
+    fit=0.
+    for i in range(n,len(arg)):
+        if ((func(arg[i-n:i])>0)==(arg[i]>0)):
+            fit += 1
+    return fit/(len(arg)-n)*100,
+    # return fit,
 
 toolbox = base.Toolbox()
 
@@ -179,9 +179,10 @@ def run(cxpb,mutpb,n,tour,termpb,popu,ngen):
 
     pop = toolbox.population(n=popu)
     hof = tools.HallOfFame(1)
-    pop, log = algorithms.eaSimple(pop, toolbox, cxpb, mutpb, ngen, stats=mstats, halloffame=hof, verbose=False)
+    pop, log = algorithms.eaSimple(pop, toolbox, cxpb, mutpb, ngen, stats=mstats, halloffame=hof, verbose=True)
 
-    return hof[0].fitness.values[0]
+    # return hof[0].fitness.values[0]
+    return log
 
 
 #def main():

@@ -161,6 +161,15 @@ def run(cxpb,mutpb,n,tour,termpb,popu,ngen):
     toolbox.decorate("mate", gp.staticLimit(key=operator.attrgetter("height"), max_value=17))
     toolbox.decorate("mutate", gp.staticLimit(key=operator.attrgetter("height"), max_value=17))
 
+    #HISTORY
+    #HISTORY
+    #HISTORY
+    history = tools.History()
+    # Decorate the variation operators
+    toolbox.decorate("mate", history.decorator)
+    toolbox.decorate("mutate", history.decorator)
+
+
     stats_fit = tools.Statistics(lambda ind: ind.fitness.values)
     stats_size = tools.Statistics(len)
     mstats = tools.MultiStatistics(fitness=stats_fit, size=stats_size)
@@ -178,10 +187,18 @@ def run(cxpb,mutpb,n,tour,termpb,popu,ngen):
         toolbox.register("map", pool.map) #PARALLELIZATION
 
     pop = toolbox.population(n=popu)
-    hof = tools.HallOfFame(1)
-    pop, log = algorithms.eaSimple(pop, toolbox, cxpb, mutpb, ngen, stats=mstats, halloffame=hof, verbose=False)
 
-    return hof[0].fitness.values[0]
+    #HISTORY
+    #HISTORY
+    #HISTORY
+    history.update(pop)
+
+    hof = tools.HallOfFame(1)
+    pop, log = algorithms.eaSimple(pop, toolbox, cxpb, mutpb, ngen, stats=mstats, halloffame=hof, verbose=True)
+
+    # return hof[0].fitness.values[0]   #FOR CMA-ES
+    # return log                        #FOR PLOT
+    return history                    #FOR HISTORY
 
 
 #def main():
