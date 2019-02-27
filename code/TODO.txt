@@ -1,0 +1,6 @@
+ - generate(): protection against depth == height
+
+
+
+Future problems:
+ - arrays accepting ints only in specific domain
